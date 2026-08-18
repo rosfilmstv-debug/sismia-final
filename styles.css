@@ -879,3 +879,98 @@ body{
   .quakeFacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}
   .quakeFacts b{white-space:nowrap}
 }
+
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 04 — definitive local-state fixes
+   ========================================================= */
+/* Map top controls: clickable above MapLibre on iOS/Safari */
+.mapHead{
+  z-index:40!important;
+  pointer-events:auto!important;
+  align-items:flex-start!important;
+}
+.mapHead .glass{pointer-events:none!important}
+.mapHead .mapRefresh{
+  position:relative!important;
+  z-index:41!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent;
+  cursor:pointer!important;
+  min-height:46px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.mapHead .mapRefresh:active{transform:scale(.96)}
+.mapHead .mapRefresh:disabled{opacity:.72;cursor:wait!important}
+
+/* Wave visualization is completely removed from the local experience */
+.waveHud,.waveLegend,.waveP,.waveS{display:none!important}
+
+/* Local forecast module removed — defensive rule for older cached HTML */
+.localForecastSection{display:none!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
+
+/* Perfect and more prominent SISMIA score ring */
+.scoreRow{
+  grid-template-columns:126px minmax(0,1fr)!important;
+  gap:18px!important;
+  align-items:center!important;
+  overflow:visible!important;
+}
+.score{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  width:126px!important;
+  height:126px!important;
+  min-width:126px!important;
+  min-height:126px!important;
+  max-width:126px!important;
+  max-height:126px!important;
+  aspect-ratio:1 / 1!important;
+  border-radius:999px!important;
+  flex:none!important;
+  background:conic-gradient(from -90deg,#ffd7a7 0%,#ffad62 calc(var(--score)*.62%),#f07b43 calc(var(--score)*1%),rgba(255,246,234,.10) 0)!important;
+  box-shadow:0 0 0 1px rgba(255,226,191,.28),0 0 0 7px rgba(255,154,72,.075),0 18px 38px rgba(66,37,20,.30),0 0 42px rgba(255,139,58,.24)!important;
+}
+.score:before{inset:-6px!important;border-radius:999px!important;border:1px solid rgba(255,207,153,.25)!important}
+.score:after{inset:11px!important;border-radius:999px!important;background:radial-gradient(circle at 35% 25%,rgba(255,213,165,.16),transparent 33%),linear-gradient(145deg,#543f32,#312822)!important}
+.score strong{font-size:40px!important;line-height:.9!important}
+.score strong:after{font-size:8px!important;margin-top:8px!important}
+
+/* Four KPIs: always one compact row, including mobile */
+.kpis{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:6px!important;
+  width:100%!important;
+}
+.kpi{
+  min-width:0!important;
+  min-height:60px!important;
+  padding:8px 7px!important;
+  border-radius:14px!important;
+  justify-content:center!important;
+}
+.kpi span{font-size:6px!important;white-space:nowrap!important;letter-spacing:.035em!important}
+.kpi strong{font-size:14px!important;white-space:nowrap!important;margin-top:5px!important}
+
+@media(max-width:800px){
+  .scoreRow{grid-template-columns:110px minmax(0,1fr)!important;gap:14px!important;padding:14px!important}
+  .score{width:110px!important;height:110px!important;min-width:110px!important;min-height:110px!important;max-width:110px!important;max-height:110px!important}
+  .score strong{font-size:35px!important}
+  .kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+  .kpi{min-height:56px!important;padding:7px 5px!important;border-radius:13px!important}
+  .kpi span{font-size:5.6px!important}
+  .kpi strong{font-size:12.5px!important}
+}
+@media(max-width:390px){
+  .scoreRow{grid-template-columns:102px minmax(0,1fr)!important;gap:11px!important;padding:12px!important}
+  .score{width:102px!important;height:102px!important;min-width:102px!important;min-height:102px!important;max-width:102px!important;max-height:102px!important}
+  .score strong{font-size:32px!important}
+  .kpi{padding:6px 4px!important}
+  .kpi span{font-size:5.2px!important}
+  .kpi strong{font-size:11.5px!important}
+}

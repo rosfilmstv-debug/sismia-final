@@ -25,13 +25,11 @@
         <div class="mapHead"><button class="btn primary mapRefresh" id="refresh">↻ ACTUALIZAR</button><div class="glass"><b id="localCountMap">— eventos</b><span>últimas 72 h</span></div></div>
         <div id="localMap" class="realmap"></div>
         <div class="mapSources" aria-label="Fuentes de datos"><div class="sourceMeta"><span class="sourceChip" id="localSourceChip"><i></i><b>EMSC</b><span id="localSourceText">conectando</span></span><span class="sourceChip" id="worldSourceChip"><i></i><b>USGS</b><span id="worldSourceText">conectando</span></span></div><div class="updateStamp" id="lastUpdate">Sin actualizar</div></div>
-        <div id="waveHud" class="waveHud"><div><b id="waveTitle">PROPAGACIÓN P/S</b><span id="waveText">Selecciona un evento para visualizar la propagación.</span><div class="waveLegend"><span class="waveP">● onda P</span><span class="waveS">● onda S</span></div></div><button class="btn" id="replayWave">REPLAY ONDAS</button></div>
       </section>
       <aside class="card side">
         <div class="eyebrow">Estado sísmico local</div><div class="status" id="status">CALCULANDO</div><div class="trend" id="trend">Esperando datos…</div>
         <div class="scoreRow"><div id="score" class="score" style="--score:0"><strong id="scoreN">0</strong></div><div class="scoreText"><b>SISMIA ALERT SCORE</b><br><span id="scoreWhy">Anomalía 0–100. No es probabilidad certificada de terremoto.</span></div></div>
         <div class="kpis"><div class="kpi"><span>72 h</span><strong id="k72">—</strong></div><div class="kpi"><span>6 h</span><strong id="k6">—</strong></div><div class="kpi"><span>Máxima</span><strong id="kmax">—</strong></div><div class="kpi"><span>Prof. mediana</span><strong id="kdepth">—</strong></div></div>
-        <div class="section localForecastSection" aria-hidden="true"><div class="eyebrow">Forecast experimental · 24 h</div><div class="bars" style="margin-top:9px"><div class="barline"><span>M≥1,5</span><div class="track"><div id="p15bar" class="fill" style="width:0"></div></div><b id="p15">—</b></div><div class="barline"><span>M≥3</span><div class="track"><div id="p3bar" class="fill" style="width:0"></div></div><b id="p3">—</b></div><div class="barline"><span>M≥4</span><div class="track"><div id="p4bar" class="fill" style="width:0"></div></div><b id="p4">—</b></div></div></div>
       </aside>
     </div>
 
