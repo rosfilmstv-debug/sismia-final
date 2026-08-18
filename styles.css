@@ -1245,3 +1245,187 @@ body::after{
   border-color:color-mix(in srgb,var(--quake) 58%,rgba(255,255,255,.10))!important;
   background:color-mix(in srgb,var(--quakeSoft) 92%,rgba(54,43,35,.48))!important;
 }
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 08 — GRAPHITE GLASS
+   Replaces the brown palette with semi-opaque black/graphite
+   glass while keeping the light canvas and animated texture.
+   No layout or JS changes.
+   ========================================================= */
+:root{
+  --bg:#f2f4f6!important;
+  --panel:#17191d!important;
+  --panel2:#202329!important;
+  --line:rgba(255,255,255,.12)!important;
+  --text:#f7f8fa!important;
+  --muted:#b3b8c0!important;
+  --amber:#ff9b54!important;
+  --green:#9fb88e!important;
+}
+html,body{background:#f3f5f7!important}
+body{
+  color:var(--text)!important;
+  background:
+    radial-gradient(920px 640px at 14% -10%,rgba(36,41,48,.055),transparent 66%),
+    radial-gradient(820px 620px at 94% 30%,rgba(255,143,69,.045),transparent 68%),
+    linear-gradient(180deg,#fafbfc 0%,#eef1f4 48%,#f8f9fa 100%)!important;
+  background-attachment:fixed!important;
+}
+body::before{
+  opacity:.34!important;
+  filter:blur(12px)!important;
+  background:
+    repeating-radial-gradient(ellipse at 16% 28%,transparent 0 52px,rgba(48,53,61,.09) 53px 55px,transparent 56px 96px),
+    repeating-radial-gradient(ellipse at 84% 64%,transparent 0 72px,rgba(40,45,52,.07) 73px 75px,transparent 76px 128px),
+    linear-gradient(115deg,transparent 0 46%,rgba(45,50,58,.028) 47% 48%,transparent 49% 100%)!important;
+  animation:graphiteWaveDrift 24s ease-in-out infinite alternate!important;
+}
+body::after{
+  opacity:.24!important;
+  filter:blur(26px)!important;
+  background:
+    radial-gradient(ellipse at 30% 82%,transparent 0 120px,rgba(31,36,43,.09) 123px 127px,transparent 130px 218px),
+    radial-gradient(ellipse at 72% 8%,transparent 0 150px,rgba(255,138,67,.05) 153px 157px,transparent 160px 250px),
+    repeating-linear-gradient(132deg,transparent 0 88px,rgba(35,40,47,.025) 90px 92px,transparent 94px 178px)!important;
+  animation:graphiteTextureFloat 34s ease-in-out infinite alternate-reverse!important;
+}
+@keyframes graphiteWaveDrift{
+  0%{transform:translate3d(-2%,-1%,0) scale(1)}
+  48%{transform:translate3d(1.5%,1.4%,0) scale(1.035) rotate(.25deg)}
+  100%{transform:translate3d(2.8%,-.8%,0) scale(1.06) rotate(-.2deg)}
+}
+@keyframes graphiteTextureFloat{
+  0%{transform:translate3d(1.5%,1.2%,0) scale(1.02)}
+  100%{transform:translate3d(-2.2%,-1.4%,0) scale(1.08)}
+}
+
+/* Header on the light outer canvas */
+.top{color:#202328!important}
+.brand{color:#17191d!important;text-shadow:none!important}
+.brand small{color:#727880!important}
+.live{
+  color:#4c5158!important;
+  background:rgba(255,255,255,.66)!important;
+  border-color:rgba(30,34,40,.10)!important;
+  box-shadow:0 8px 24px rgba(25,29,34,.07)!important;
+  backdrop-filter:blur(18px) saturate(115%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(115%)!important;
+}
+
+/* Main graphite glass surfaces */
+.card,.alert,.serverBox,.side,.correlation,.sensorScreen{
+  background:
+    radial-gradient(520px 260px at 4% 0%,rgba(255,255,255,.075),transparent 62%),
+    radial-gradient(360px 240px at 96% 4%,rgba(255,143,72,.045),transparent 68%),
+    linear-gradient(145deg,rgba(34,36,41,.88),rgba(15,17,20,.84))!important;
+  border-color:rgba(255,255,255,.13)!important;
+  box-shadow:
+    0 18px 44px rgba(14,16,19,.16),
+    inset 0 1px 0 rgba(255,255,255,.11),
+    inset 0 -18px 40px rgba(0,0,0,.09)!important;
+  backdrop-filter:blur(28px) saturate(106%)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(106%)!important;
+}
+.side{
+  background:
+    radial-gradient(430px 300px at 98% 0%,rgba(255,145,74,.085),transparent 67%),
+    linear-gradient(150deg,rgba(39,41,46,.90),rgba(17,19,22,.87))!important;
+}
+
+/* Sticky nav becomes smoked glass rather than brown */
+.nav{
+  background:linear-gradient(180deg,rgba(24,26,30,.94),rgba(16,18,21,.88))!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 12px 30px rgba(17,19,22,.12),inset 0 1px 0 rgba(255,255,255,.07)!important;
+  backdrop-filter:blur(22px) saturate(105%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(105%)!important;
+}
+.nav button{color:#aeb3ba!important}
+.nav button.on{
+  color:#17191d!important;
+  background:linear-gradient(135deg,#ffbd79,#f28b4b)!important;
+  border-color:rgba(255,190,123,.75)!important;
+  box-shadow:0 7px 18px rgba(223,113,49,.22),inset 0 1px 0 rgba(255,255,255,.44)!important;
+}
+
+/* Graphite glass subcards */
+.kpi,.metric,.sensorNum,.sensorStatusBox,.changeItem,.scenario,.dnaCell,.quality,.remoteStat,.timeBox,.communityStats div,
+.details,.recentEvent,.forecastZone,.sourceChip,.popupCell{
+  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.035))!important;
+  border-color:rgba(255,255,255,.11)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+.kpi:nth-child(1),.grid4 .metric:nth-child(1),.grid3 .metric:nth-child(1){background:linear-gradient(145deg,rgba(255,150,82,.16),rgba(255,255,255,.035))!important}
+.kpi:nth-child(2),.grid4 .metric:nth-child(2),.grid3 .metric:nth-child(2){background:linear-gradient(145deg,rgba(146,164,135,.14),rgba(255,255,255,.035))!important}
+.kpi:nth-child(3),.grid4 .metric:nth-child(3),.grid3 .metric:nth-child(3){background:linear-gradient(145deg,rgba(191,89,63,.15),rgba(255,255,255,.035))!important}
+.kpi:nth-child(4),.grid4 .metric:nth-child(4){background:linear-gradient(145deg,rgba(155,161,170,.12),rgba(255,255,255,.035))!important}
+
+/* Text: neutral whites/greys instead of cream/brown */
+.event b,.recentEventTop b,.statZoneHead strong,.quakeTitleRow>b,.quakeTime strong,.quakeFacts b,.scoreText b{color:#f7f8fa!important}
+.event small,.recentEventMeta,.statZoneHead small,.quakeTime span,.quakeFacts small,.rangeSummary,.filterLabel,.updateStamp,.chartLabel,.metric small,.muted{color:#aeb4bd!important}
+.eyebrow,.title p{color:#a8aeb6!important}
+.scoreText span,.scoreContext{color:#e5e8ec!important}
+.aiRiskNote{color:#b9bec6!important;border-top-color:rgba(255,255,255,.12)!important}
+
+/* Alert score: keep orange accent, graphite core */
+.score{
+  background:conic-gradient(from -90deg,#ffd0a0 0%,#ff9f59 calc(var(--score)*.62%),#f06f3c calc(var(--score)*1%),rgba(255,255,255,.10) 0)!important;
+  box-shadow:0 0 0 1px rgba(255,194,135,.25),0 0 0 7px rgba(255,132,58,.06),0 16px 38px rgba(0,0,0,.28),0 0 38px rgba(255,125,49,.19)!important;
+}
+.score:after{
+  background:radial-gradient(circle at 34% 25%,rgba(255,255,255,.10),transparent 34%),linear-gradient(145deg,#272a30,#111317)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+
+/* Event cards retain magnitude colours, now over neutral graphite */
+.event.quakeEvent.mag-blue{background:linear-gradient(100deg,rgba(68,132,214,.23),rgba(34,37,43,.78) 52%,rgba(17,19,23,.72))!important}
+.event.quakeEvent.mag-yellow{background:linear-gradient(100deg,rgba(190,153,43,.24),rgba(35,37,42,.79) 52%,rgba(17,19,23,.72))!important}
+.event.quakeEvent.mag-orange{background:linear-gradient(100deg,rgba(213,105,45,.27),rgba(36,37,41,.80) 52%,rgba(17,19,23,.72))!important}
+.event.quakeEvent.mag-red{background:linear-gradient(100deg,rgba(205,67,52,.30),rgba(37,36,40,.82) 52%,rgba(17,19,23,.73))!important}
+.event.quakeEvent.mag-deep{background:linear-gradient(100deg,rgba(164,34,45,.38),rgba(36,34,39,.84) 52%,rgba(15,17,20,.76))!important}
+.event.quakeEvent .quakeClass{
+  background:color-mix(in srgb,var(--quakeSoft) 88%,rgba(22,24,28,.78))!important;
+}
+.recentEvent{
+  background:linear-gradient(100deg,var(--quakeSoft),rgba(33,35,40,.75) 50%,rgba(16,18,21,.70))!important;
+}
+
+/* Filters/buttons */
+.rangeFilters button,.intensityFilters button,.btn,.risk,.badge,.pill,.sourceChip{
+  background:rgba(255,255,255,.065)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:#d2d6dc!important;
+}
+.rangeFilters button.on,.intensityFilters button.on,.btn.primary,.feltJumpBtn{
+  color:#17191d!important;
+  background:linear-gradient(135deg,#ffc17c,#ef8849)!important;
+  border-color:rgba(255,191,124,.76)!important;
+}
+
+/* Misc graphite surfaces */
+.details{background:rgba(17,19,22,.54)!important}
+.notice{background:linear-gradient(145deg,rgba(255,144,73,.10),rgba(255,255,255,.035))!important;color:#d8dce1!important}
+.notice.cyan{background:linear-gradient(145deg,rgba(114,142,160,.10),rgba(255,255,255,.035))!important}
+.notice.red{background:linear-gradient(145deg,rgba(205,73,61,.13),rgba(255,255,255,.03))!important}
+.track,.miniTrack,.distBar,.vibeGauge{background:rgba(0,0,0,.24)!important}
+.motionChart{background:rgba(8,10,13,.56)!important;border-color:rgba(255,255,255,.10)!important}
+.divider{background:rgba(255,255,255,.10)!important}
+.toast{background:rgba(18,20,24,.95)!important;border-color:rgba(255,255,255,.12)!important}
+.toast p{color:#b7bdc5!important}
+.maplibregl-popup-content{background:rgba(20,22,26,.96)!important;color:#f6f7f9!important;border-color:rgba(255,255,255,.14)!important}
+.maplibregl-popup-tip{border-top-color:rgba(20,22,26,.96)!important;border-bottom-color:rgba(20,22,26,.96)!important}
+
+/* Footer remains readable on light canvas */
+.footer{
+  color:#656b73!important;
+  background:rgba(255,255,255,.60)!important;
+  border-color:rgba(24,28,33,.08)!important;
+  box-shadow:0 8px 24px rgba(20,24,29,.05)!important;
+}
+
+@media(max-width:800px){
+  body::before{opacity:.26!important;filter:blur(16px)!important}
+  body::after{opacity:.17!important;filter:blur(30px)!important}
+  .card,.alert,.serverBox,.side,.correlation,.sensorScreen{backdrop-filter:blur(22px) saturate(104%)!important;-webkit-backdrop-filter:blur(22px) saturate(104%)!important}
+}
+@media(prefers-reduced-motion:reduce){body::before,body::after{animation:none!important}}
