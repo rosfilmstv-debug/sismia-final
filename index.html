@@ -12,7 +12,7 @@
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 <title>SISMIA · Visualizador en tiempo real de terremotos · J.D. Ros</title>
-<link rel="stylesheet" href="/styles.css?v=18-map-spheres">
+<link rel="stylesheet" href="/styles.css?v=19-map-spheres">
 </head>
 <body>
 <div class="app">
@@ -94,12 +94,12 @@
       <div><small>DURACIÓN</small><strong id="seismoDuration">0.0 s</strong></div>
       <div><small>ESTADO</small><strong id="seismoLabel">LISTO</strong></div>
     </div>
-    <div class="seismoActions"><button class="btn primary" id="seismoStart">INICIAR MEDICIÓN</button><button class="btn" id="seismoAlarm">ALARMA: ON</button></div>
+    <div class="seismoActions"><button class="btn primary" id="seismoStart">INICIAR MEDICIÓN</button><button class="btn" id="seismoAlarm">ALARMA: ON</button></div><div class="seismoAlertRule"><b>ALERTA LOCAL</b><span>Se activa por movimiento fuerte detectado por el teléfono. Si el índice experimental SISMIA alcanza 80/100, muestra además una alerta de vigilancia —no significa 80% de probabilidad de terremoto.</span></div>
     <p class="seismoNote">El teléfono no es un sismómetro certificado. Golpes, caminar, vehículos o mover la superficie pueden producir señales similares. Esta función no sustituye a la Red Sísmica Nacional.</p>
   </section>
 
   <section class="underGranada">
-    <div class="sectionIntro"><div><div class="eyebrow">Contexto geológico</div><h2>BAJO GRANADA</h2></div><p>Cartografía visual basada en IGN e IGME/QAFI. No es una predicción de dónde ocurrirá el próximo terremoto.</p></div>
+    <div class="sectionIntro"><div><div class="eyebrow">Contexto geológico</div><h2>BAJO GRANADA</h2></div><p>Mapas interactivos basados en contexto IGN e IGME/QAFI. Toca una falla o zona para ver una explicación. No predicen dónde ocurrirá el próximo terremoto.</p></div>
     <div class="geoGrid">
       <article class="geoCard card"><div class="geoHead"><div><small>01 · TECTÓNICA</small><h3>Fallas activas · Cuenca de Granada</h3></div><span>IGN · QAFI</span></div><div class="geoMap" id="faultMap"></div><p>La cuenca está limitada y atravesada por sistemas de fallas activas cuaternarias. Las líneas son una visualización esquemática de contexto, no geometría parcelaria.</p></article>
       <article class="geoCard card"><div class="geoHead"><div><small>02 · TERRENO</small><h3>Amplificación sísmica del terreno</h3></div><span>IGME</span></div><div class="geoMap geoAmplification" id="groundMap"></div><p>Los materiales superficiales pueden modificar la intensidad del movimiento que llega a superficie. Mayor amplificación no significa mayor probabilidad de que nazca allí un terremoto.</p></article>
@@ -160,6 +160,6 @@
 <script src="/app-1.js?v=18-map-spheres"></script>
 <script src="/app-2.js?v=16-map-spheres"></script>
 <script src="/app-3.js?v=15-map-rebuild"></script>
-<script src="/app-seismograph.js?v=18"></script>
+<script src="/app-seismograph.js?v=19"></script>
 </body>
 </html>
