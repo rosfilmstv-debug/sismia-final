@@ -23,7 +23,7 @@ function quakeTone(m){return m>=5?'mag-deep':m>=4?'mag-red':m>=3?'mag-orange':m>
 function recentEventMarkup(e,index=0){const t=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon),depth=Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—',latest=index===0;return `<button class="recentEvent ${quakeTone(e.mag)} ${latest?'isLatest':''}" onclick="openLocal('${String(e.id).replaceAll("'","\\'")}')"><div class="recentMagnitude"><span>M</span><strong>${e.mag.toFixed(1)}</strong></div><div class="recentEventBody"><div class="recentEventTop"><b>${t.name}</b><span class="recentCategory">${severity(e.mag)}</span>${latest?'<em>ÚLTIMO</em>':''}</div><div class="recentEventMeta"><span><strong>${age(e.time)}</strong> hace</span><span>${dateLocal(e.time)}</span><span>Prof. <strong>${depth}</strong></span><span>${dG.toFixed(1)} km de Granada</span><span>${e.source}</span></div></div></button>`}
 function popupHTML(e){const town=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon);return `<div class="popupMag">M${e.mag.toFixed(1)}</div><div class="popupPlace">${town.name}${town.d>1?' · '+town.d.toFixed(1)+' km':''}</div><div class="popupGrid"><div class="popupCell"><span>Hace</span><b>${age(e.time)}</b></div><div class="popupCell"><span>Hora local</span><b>${dateLocal(e.time)}</b></div><div class="popupCell"><span>Profundidad</span><b>${Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—'}</b></div><div class="popupCell"><span>Clase</span><b>${severity(e.mag)}</b></div><div class="popupCell"><span>Dist. Granada</span><b>${dG.toFixed(1)} km</b></div><div class="popupCell"><span>Intensidad oficial</span><b>${e.intensity||'no incluida'}</b></div></div>`}
 function circlePoly(lat,lon,rKm,n=64){const pts=[];for(let i=0;i<=n;i++){const br=2*Math.PI*i/n,dr=rKm/6371,la=rad(lat),lo=rad(lon);const la2=Math.asin(Math.sin(la)*Math.cos(dr)+Math.cos(la)*Math.sin(dr)*Math.cos(br));const lo2=lo+Math.atan2(Math.sin(br)*Math.sin(dr)*Math.cos(la),Math.cos(dr)-Math.sin(la)*Math.sin(la2));pts.push([deg(lo2),deg(la2)])}return {type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[pts]}}}
-function eventFC(es){return {type:'FeatureCollection',features:es.map(e=>({type:'Feature',id:String(e.id),properties:{id:String(e.id),mag:e.mag,place:e.place,time:e.time,depth:e.depth,source:e.source},geometry:{type:'Point',coordinates:[e.lon,e.lat]}}))}}
+function eventFC(es){const latest=newest(es);return {type:'FeatureCollection',features:es.map(e=>({type:'Feature',id:String(e.id),properties:{id:String(e.id),mag:e.mag,place:e.place,time:e.time,depth:e.depth,source:e.source,isLatest:!!latest&&String(e.id)===String(latest.id)},geometry:{type:'Point',coordinates:[e.lon,e.lat]}}))}}
 function shiftLatLon(lat,lon,km,bearingDeg){const d=km/6371,br=rad(bearingDeg),la=rad(lat),lo=rad(lon),la2=Math.asin(Math.sin(la)*Math.cos(d)+Math.cos(la)*Math.sin(d)*Math.cos(br)),lo2=lo+Math.atan2(Math.sin(br)*Math.sin(d)*Math.cos(la),Math.cos(d)-Math.sin(la)*Math.sin(la2));return{lat:deg(la2),lon:deg(lo2)}}
 function forecastProjection(h=forecastHorizon){if(!model)return{center:G,radius:6,events:[]};const b=model.migrationBearing??0,shift=Math.min(model.radius*.65,(model.migration||0)*Math.max(0.3,h/6)*.35),c=shiftLatLon(model.center.lat,model.center.lon,shift,b),radius=clamp(model.radius*(1+.18*h/24),3,32),events=(model.e24.length?model.e24:model.e72).map(e=>{const q=shiftLatLon(e.lat,e.lon,shift,b);return{...e,lat:q.lat,lon:q.lon}});return{center:c,radius,events}}
 function snapshotNow(){if(!model)return null;return{at:Date.now(),events72:model.e72.length,events6:model.e6.length,max:model.max,score:model.score,center:model.center,radius:model.radius,p3:model.p3}}
@@ -42,8 +42,8 @@ function markerClock(t){return new Intl.DateTimeFormat('es-ES',{hour:'2-digit',m
 function safeMapText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 /* MAPA V16 — base estable V5/V15 + esferas, aura térmica y satélite. */
-function localQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',2,'#FFD84D',3,'#FF922E',4,'#FF4B3E',5,'#D91932']}
-function worldQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',6.3,'#FFD84D',7.1,'#FF922E',8,'#FF4B3E',8.7,'#D91932']}
+function localQuakeColor(){return ['step',['to-number',['get','mag'],0],'#26A7FF',2,'#FFE04B',3,'#FF8A24',4,'#FF4438',5,'#D71932']}
+function worldQuakeColor(){return ['step',['to-number',['get','mag'],0],'#26A7FF',6.3,'#FFE04B',7.1,'#FF8A24',8,'#FF4438',8.7,'#D71932']}
 function localPointRadius(){return ['interpolate',['linear'],['zoom'],
   7,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,2.7,2,3.0,3,3.8,4,4.8,5,5.9],
   10,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,4.2,2,4.7,3,5.8,4,7.1,5,8.5],
@@ -71,72 +71,125 @@ function addGranada(map){
 function addLocalLayers(map){
   if(map.getSource('local-quakes'))return;
   map.addSource('cluster-zone',{type:'geojson',data:emptyFC()});
-  map.addLayer({id:'cluster-zone-fill',type:'fill',source:'cluster-zone',paint:{'fill-color':'#ff9b4a','fill-opacity':.018}});
-  map.addLayer({id:'cluster-zone-line',type:'line',source:'cluster-zone',paint:{'line-color':'#ff9b4a','line-width':1.2,'line-dasharray':[3,2],'line-opacity':.40}});
-
+  map.addLayer({id:'cluster-zone-fill',type:'fill',source:'cluster-zone',paint:{'fill-color':'#ff9b4a','fill-opacity':.015}});
+  map.addLayer({id:'cluster-zone-line',type:'line',source:'cluster-zone',paint:{'line-color':'#ff9b4a','line-width':1.1,'line-dasharray':[3,2],'line-opacity':.34}});
   map.addSource('local-quakes',{type:'geojson',data:emptyFC()});
 
-  /* Aura térmica muy suave: solo refuerza zonas donde coinciden proximidad + magnitud. */
+  /* Temperatura ambiente: crea manchas suaves cuando varios eventos están próximos. */
   map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:13,paint:{
-    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],1.5,.12,2,.22,3,.48,4,.78,5,1],
-    'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.30,10,.48,13,.60],
-    'heatmap-radius':['interpolate',['linear'],['zoom'],7,13,10,20,13,27],
-    'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.12,10,.18,13,.13],
-    'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,0,0,0)',.18,'rgba(47,156,255,.10)',.38,'rgba(255,216,77,.13)',.63,'rgba(255,146,46,.18)',.82,'rgba(255,75,62,.22)',1,'rgba(217,25,50,.25)']
+    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],1.5,.16,2,.28,3,.54,4,.82,5,1],
+    'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.42,10,.64,13,.72],
+    'heatmap-radius':['interpolate',['linear'],['zoom'],7,17,10,26,13,34],
+    'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.18,10,.25,13,.20],
+    'heatmap-color':['interpolate',['linear'],['heatmap-density'],
+      0,'rgba(0,0,0,0)',.14,'rgba(38,167,255,.08)',.30,'rgba(38,167,255,.20)',
+      .48,'rgba(255,224,75,.20)',.66,'rgba(255,138,36,.24)',.84,'rgba(255,68,56,.28)',1,'rgba(215,25,50,.32)']
   }});
 
-  /* Sombra inferior: aporta volumen sin perder el color de magnitud. */
+  /* Halo térmico exterior + halo óptico interior. */
+  map.addLayer({id:'local-aura-outer',type:'circle',source:'local-quakes',paint:{
+    'circle-radius':['*',localHaloRadius(),1.55],'circle-color':localQuakeColor(),
+    'circle-opacity':['interpolate',['linear'],['zoom'],7,.08,10,.13,13,.16],'circle-blur':1
+  }});
+  map.addLayer({id:'local-aura-inner',type:'circle',source:'local-quakes',paint:{
+    'circle-radius':['*',localHaloRadius(),.92],'circle-color':localQuakeColor(),
+    'circle-opacity':['interpolate',['linear'],['zoom'],7,.18,10,.27,13,.31],'circle-blur':.82
+  }});
+
+  /* Volumen de esfera: sombra desplazada, cuerpo, sombreado inferior y reflejos. */
   map.addLayer({id:'local-sphere-shadow',type:'circle',source:'local-quakes',paint:{
-    'circle-radius':localPointRadius(),'circle-color':'#000','circle-opacity':.34,'circle-blur':.28,'circle-translate':[1.4,1.8]
+    'circle-radius':['*',localPointRadius(),1.08],'circle-color':'#000','circle-opacity':.46,'circle-blur':.32,'circle-translate':[1.8,2.2]
   }});
-  /* Halo individual que se funde con el aura térmica. */
-  map.addLayer({id:'local-halo',type:'circle',source:'local-quakes',paint:{
-    'circle-radius':localHaloRadius(),'circle-color':localQuakeColor(),
-    'circle-opacity':['interpolate',['linear'],['zoom'],7,.14,10,.20,13,.24],'circle-blur':.84,'circle-stroke-width':0
-  }});
-  /* Esfera central. */
   map.addLayer({id:'local-points',type:'circle',source:'local-quakes',paint:{
     'circle-radius':localPointRadius(),'circle-color':localQuakeColor(),
-    'circle-stroke-color':'rgba(255,255,255,.94)','circle-stroke-width':['interpolate',['linear'],['zoom'],7,.8,10,1.15,13,1.45],'circle-opacity':1
+    'circle-stroke-color':'rgba(255,255,255,.88)','circle-stroke-width':['interpolate',['linear'],['zoom'],7,.75,10,1.05,13,1.35],
+    'circle-opacity':1
   }});
-  /* Brillo desplazado = sensación de esfera/degradado. */
+  map.addLayer({id:'local-sphere-depth',type:'circle',source:'local-quakes',paint:{
+    'circle-radius':['*',localPointRadius(),.78],'circle-color':'#030405','circle-opacity':.16,
+    'circle-blur':.48,'circle-translate':[1.15,1.45]
+  }});
+  map.addLayer({id:'local-sphere-light',type:'circle',source:'local-quakes',paint:{
+    'circle-radius':['*',localPointRadius(),.58],'circle-color':'#fff','circle-opacity':.16,
+    'circle-blur':.55,'circle-translate':[-1.15,-1.25]
+  }});
   map.addLayer({id:'local-sphere-shine',type:'circle',source:'local-quakes',paint:{
-    'circle-radius':['*',localPointRadius(),.42],'circle-color':'#fff','circle-opacity':.40,'circle-blur':.28,'circle-translate':[-1.5,-1.7]
+    'circle-radius':['*',localPointRadius(),.24],'circle-color':'#fff','circle-opacity':.72,
+    'circle-blur':.18,'circle-translate':[-2.0,-2.15]
   }});
-  /* Capa invisible de toque. */
+
+  /* Último evento: núcleo verde independiente y glow. Las ondas las aporta también el marcador DOM. */
+  map.addLayer({id:'local-latest-glow',type:'circle',source:'local-quakes',filter:['==',['get','isLatest'],true],paint:{
+    'circle-radius':['*',localHaloRadius(),1.15],'circle-color':'#44FF88','circle-opacity':.27,'circle-blur':.84
+  }});
+  map.addLayer({id:'local-latest-core',type:'circle',source:'local-quakes',filter:['==',['get','isLatest'],true],paint:{
+    'circle-radius':['*',localPointRadius(),1.16],'circle-color':'#44F886','circle-opacity':1,
+    'circle-stroke-color':'#F1FFF5','circle-stroke-width':1.8
+  }});
+  map.addLayer({id:'local-latest-shine',type:'circle',source:'local-quakes',filter:['==',['get','isLatest'],true],paint:{
+    'circle-radius':['*',localPointRadius(),.27],'circle-color':'#fff','circle-opacity':.82,'circle-blur':.12,'circle-translate':[-2,-2]
+  }});
+
+  /* Zona táctil grande, aunque visualmente la esfera sea pequeña. */
   map.addLayer({id:'local-hit',type:'circle',source:'local-quakes',paint:{
-    'circle-radius':['interpolate',['linear'],['zoom'],7,8,10,10,13,12],'circle-color':'#000','circle-opacity':.001,'circle-stroke-width':0
+    'circle-radius':['interpolate',['linear'],['zoom'],7,8.5,10,10.5,13,12.5],'circle-color':'#000','circle-opacity':.001
   }});
   map.addSource('local-selected',{type:'geojson',data:emptyFC()});
   map.addLayer({id:'local-selected-ring',type:'circle',source:'local-selected',paint:{
-    'circle-radius':['interpolate',['linear'],['zoom'],7,8,10,11,13,14],'circle-color':'rgba(0,0,0,0)','circle-stroke-color':'#fff','circle-stroke-width':3,'circle-opacity':1
+    'circle-radius':['interpolate',['linear'],['zoom'],7,8,10,11,13,14],'circle-color':'rgba(0,0,0,0)',
+    'circle-stroke-color':'#fff','circle-stroke-width':2.6,'circle-opacity':1
   }});
-
   const pick=ev=>{const f=ev.features?.[0];if(!f)return;const e=local.find(x=>String(x.id)===String(f.properties.id));if(e)showLocalEvent(e,map)};
   map.on('click','local-hit',pick);
   map.on('mouseenter','local-hit',()=>map.getCanvas().style.cursor='pointer');
   map.on('mouseleave','local-hit',()=>map.getCanvas().style.cursor='')
 }
-
 function addWorldLayers(map){
   if(map.getSource('world-quakes'))return;
   map.addSource('world-quakes',{type:'geojson',data:emptyFC()});
   map.addLayer({id:'world-heat',type:'heatmap',source:'world-quakes',maxzoom:5,paint:{
-    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],5.5,.18,6.5,.42,7.5,.72,9,1],
-    'heatmap-intensity':['interpolate',['linear'],['zoom'],0,.32,3,.52,5,.62],
-    'heatmap-radius':['interpolate',['linear'],['zoom'],0,13,3,23,5,31],
-    'heatmap-opacity':['interpolate',['linear'],['zoom'],0,.10,3,.17,5,.12],
-    'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,0,0,0)',.2,'rgba(47,156,255,.08)',.42,'rgba(255,216,77,.12)',.65,'rgba(255,146,46,.16)',.84,'rgba(255,75,62,.21)',1,'rgba(217,25,50,.24)']
+    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],5.5,.22,6.5,.48,7.5,.78,9,1],
+    'heatmap-intensity':['interpolate',['linear'],['zoom'],0,.42,3,.62,5,.72],
+    'heatmap-radius':['interpolate',['linear'],['zoom'],0,18,3,28,5,36],
+    'heatmap-opacity':['interpolate',['linear'],['zoom'],0,.16,3,.23,5,.18],
+    'heatmap-color':['interpolate',['linear'],['heatmap-density'],
+      0,'rgba(0,0,0,0)',.16,'rgba(38,167,255,.10)',.34,'rgba(38,167,255,.20)',
+      .52,'rgba(255,224,75,.20)',.68,'rgba(255,138,36,.25)',.86,'rgba(255,68,56,.29)',1,'rgba(215,25,50,.33)']
   }});
-  map.addLayer({id:'world-shadow',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(),'circle-color':'#000','circle-opacity':.34,'circle-blur':.28,'circle-translate':[1.3,1.6]}});
-  map.addLayer({id:'world-glow',type:'circle',source:'world-quakes',paint:{'circle-radius':['*',worldPointRadius(),2.8],'circle-color':worldQuakeColor(),'circle-opacity':.20,'circle-blur':.82}});
-  map.addLayer({id:'world-points',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(),'circle-color':worldQuakeColor(),'circle-stroke-color':'rgba(255,255,255,.94)','circle-stroke-width':1.2,'circle-opacity':1}});
-  map.addLayer({id:'world-shine',type:'circle',source:'world-quakes',paint:{'circle-radius':['*',worldPointRadius(),.42],'circle-color':'#fff','circle-opacity':.40,'circle-blur':.25,'circle-translate':[-1.4,-1.6]}});
+  map.addLayer({id:'world-aura-outer',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['*',worldPointRadius(),4.1],'circle-color':worldQuakeColor(),'circle-opacity':.10,'circle-blur':1
+  }});
+  map.addLayer({id:'world-aura-inner',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['*',worldPointRadius(),2.65],'circle-color':worldQuakeColor(),'circle-opacity':.24,'circle-blur':.82
+  }});
+  map.addLayer({id:'world-shadow',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['*',worldPointRadius(),1.08],'circle-color':'#000','circle-opacity':.46,'circle-blur':.32,'circle-translate':[1.6,2]
+  }});
+  map.addLayer({id:'world-points',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':worldPointRadius(),'circle-color':worldQuakeColor(),'circle-stroke-color':'rgba(255,255,255,.9)','circle-stroke-width':1.15,'circle-opacity':1
+  }});
+  map.addLayer({id:'world-depth',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['*',worldPointRadius(),.78],'circle-color':'#020304','circle-opacity':.16,'circle-blur':.48,'circle-translate':[1.05,1.3]
+  }});
+  map.addLayer({id:'world-light',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['*',worldPointRadius(),.56],'circle-color':'#fff','circle-opacity':.15,'circle-blur':.5,'circle-translate':[-1,-1.2]
+  }});
+  map.addLayer({id:'world-shine',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['*',worldPointRadius(),.24],'circle-color':'#fff','circle-opacity':.72,'circle-blur':.16,'circle-translate':[-1.8,-2]
+  }});
+  map.addLayer({id:'world-latest-glow',type:'circle',source:'world-quakes',filter:['==',['get','isLatest'],true],paint:{
+    'circle-radius':['*',worldPointRadius(),3.5],'circle-color':'#44FF88','circle-opacity':.28,'circle-blur':.84
+  }});
+  map.addLayer({id:'world-latest-core',type:'circle',source:'world-quakes',filter:['==',['get','isLatest'],true],paint:{
+    'circle-radius':['*',worldPointRadius(),1.18],'circle-color':'#44F886','circle-opacity':1,'circle-stroke-color':'#F1FFF5','circle-stroke-width':1.8
+  }});
+  map.addLayer({id:'world-latest-shine',type:'circle',source:'world-quakes',filter:['==',['get','isLatest'],true],paint:{
+    'circle-radius':['*',worldPointRadius(),.27],'circle-color':'#fff','circle-opacity':.82,'circle-blur':.12,'circle-translate':[-1.8,-2]
+  }});
   map.on('click','world-points',ev=>{const f=ev.features?.[0];if(f)selectWorld(String(f.properties.id))});
   map.addSource('world-link',{type:'geojson',data:emptyFC()});
   map.addLayer({id:'world-link-line',type:'line',source:'world-link',paint:{'line-color':'#ff9b4a','line-width':2,'line-dasharray':[2,2],'line-opacity':.78}})
 }
-
 function addSatelliteLayer(map){
   try{
     if(map.getSource('sismia-satellite'))return;
@@ -208,127 +261,3 @@ window.openLocal=id=>{const e=local.find(x=>String(x.id)===String(id));if(!e)ret
 function sizeFullMapPage(){const nav=document.querySelector('.nav'),top=nav?Math.ceil(nav.getBoundingClientRect().bottom+4):116;document.documentElement.style.setProperty('--sismia-map-top',top+'px');setTimeout(()=>fullLocalMapObj?.resize(),30)}
 window.addEventListener('resize',()=>{if(document.getElementById('map')?.classList.contains('on'))sizeFullMapPage()});
 function weightedCenter(es){if(!es.length)return {lat:G.lat,lon:G.lon};const now=Date.now();let sw=0,la=0,lo=0;for(const e of es){const ageH=Math.max(.05,(now-e.time)/36e5),w=(1+Math.max(0,e.mag-MC))*(1/(1+ageH/6));sw+=w;la+=e.lat*w;lo+=e.lon*w}return {lat:la/sw,lon:lo/sw}}
-
-
-/* === SISMIA V17 map visual enhancement === */
-function sismiaV17EnhanceMap(map, prefix){
-  if(!map || map.__sismiaV17Enhanced) return;
-  map.__sismiaV17Enhanced = true;
-
-  const install = () => {
-    try {
-      const sourceId = prefix === 'world' ? 'world-quakes' : 'local-quakes';
-      if(!map.getSource(sourceId)) return;
-
-      const haloId = prefix + '-v17-soft-glow';
-      if(!map.getLayer(haloId)){
-        map.addLayer({
-          id: haloId,
-          type:'circle',
-          source:sourceId,
-          paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],5,
-              ['interpolate',['linear'],['get','mag'],0,8,2,12,3,16,4,22,5,30],
-              11,['interpolate',['linear'],['get','mag'],0,11,2,17,3,23,4,31,5,42]
-            ],
-            'circle-color':['case',
-              ['<',['get','mag'],2],'#39A9FF',
-              ['<',['get','mag'],3],'#FFD84A',
-              ['<',['get','mag'],4],'#FF922E',
-              '#FF493D'
-            ],
-            'circle-opacity':0.18,
-            'circle-blur':0.9,
-            'circle-stroke-width':0
-          }
-        }, prefix + '-points');
-      }
-
-      const latestId = prefix + '-v17-latest-green';
-      if(!map.getLayer(latestId)){
-        map.addLayer({
-          id:latestId,
-          type:'circle',
-          source:sourceId,
-          filter:['==',['get','isLatest'],true],
-          paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],5,9,11,14],
-            'circle-color':'#4DFF88',
-            'circle-opacity':1,
-            'circle-stroke-color':'#EFFFF4',
-            'circle-stroke-width':2.2,
-            'circle-blur':0.04
-          }
-        });
-      }
-
-      const latestGlow = prefix + '-v17-latest-glow';
-      if(!map.getLayer(latestGlow)){
-        map.addLayer({
-          id:latestGlow,
-          type:'circle',
-          source:sourceId,
-          filter:['==',['get','isLatest'],true],
-          paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],5,24,11,38],
-            'circle-color':'#4DFF88',
-            'circle-opacity':0.28,
-            'circle-blur':0.85,
-            'circle-stroke-width':0
-          }
-        }, latestId);
-      }
-    } catch(e){ console.warn('V17 map enhancement',e); }
-  };
-  if(map.loaded()) install();
-  map.on('load', install);
-  map.on('styledata', ()=>setTimeout(install,50));
-}
-
-function sismiaV17SatelliteButton(map, container, prefix){
-  if(!map || !container || container.querySelector('.v17SatelliteToggle')) return;
-  const b=document.createElement('button');
-  b.className='v17SatelliteToggle';
-  b.type='button';
-  b.textContent='SATÉLITE';
-  b.setAttribute('aria-label','Alternar vista satélite');
-  let satellite=false;
-  b.addEventListener('click',()=>{
-    satellite=!satellite;
-    b.textContent=satellite?'MAPA':'SATÉLITE';
-    try{
-      if(satellite){
-        if(!map.getSource(prefix+'-v17-satellite')){
-          map.addSource(prefix+'-v17-satellite',{
-            type:'raster',
-            tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-            tileSize:256,
-            attribution:'Tiles © Esri'
-          });
-        }
-        if(!map.getLayer(prefix+'-v17-satellite')){
-          const first=map.getStyle()?.layers?.[0]?.id;
-          map.addLayer({id:prefix+'-v17-satellite',type:'raster',source:prefix+'-v17-satellite',paint:{'raster-opacity':0.96}}, first);
-        }
-      }else if(map.getLayer(prefix+'-v17-satellite')){
-        map.removeLayer(prefix+'-v17-satellite');
-      }
-    }catch(e){console.warn('Satellite toggle',e);}
-  });
-  container.appendChild(b);
-}
-
-function sismiaV17Init(){
-  const pairs=[
-    [window.localMap,document.getElementById('localMap'),'local'],
-    [window.fullMap,document.getElementById('fullMap'),'full'],
-    [window.worldMap,document.getElementById('worldMap'),'world']
-  ];
-  pairs.forEach(([m,c,p])=>{
-    if(!m||!c) return;
-    sismiaV17EnhanceMap(m,p);
-    sismiaV17SatelliteButton(m,c.parentElement||c,p);
-  });
-}
-window.addEventListener('load',()=>setTimeout(sismiaV17Init,1200));
-setTimeout(sismiaV17Init,2600);

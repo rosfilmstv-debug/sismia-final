@@ -90,25 +90,30 @@ function makeMap(id,mode){
   if(mode==='fault'){
    m.addSource('faults',{type:'geojson',data:{type:'FeatureCollection',features:faults.map((f,i)=>({type:'Feature',properties:{name:f[0],i},geometry:{type:'LineString',coordinates:f[1]}}))}});
    m.addLayer({id:'faultGlow',type:'line',source:'faults',paint:{'line-color':'#ff6a2b','line-width':7,'line-opacity':.13,'line-blur':5}});
-   m.addLayer({id:'faultLines',type:'line',source:'faults',paint:{'line-color':'#ff5b21','line-width':2.2,'line-opacity':.9}});
-   m.on('click','faultLines',e=>{const f=e.features&&e.features[0];if(!f)return;infoPanel(el,f.properties.name,faultInfo[f.properties.name]||'Falla activa cuaternaria incluida como contexto tectónico.');});
-   m.on('mouseenter','faultLines',()=>m.getCanvas().style.cursor='pointer');m.on('mouseleave','faultLines',()=>m.getCanvas().style.cursor='');
+   m.addLayer({id:'faultLines',type:'line',source:'faults',paint:{'line-color':'#ff7a21','line-width':2.5,'line-opacity':.96}});
+   m.addLayer({id:'faultHit',type:'line',source:'faults',paint:{'line-color':'#ff7a21','line-width':15,'line-opacity':.001}});
+
+   const faultPick=e=>{const f=e.features&&e.features[0];if(!f)return;infoPanel(el,f.properties.name,faultInfo[f.properties.name]||'Falla activa cuaternaria incluida como contexto tectónico.');};m.on('click','faultLines',faultPick);m.on('click','faultHit',faultPick);
+   m.on('mouseenter','faultHit',()=>m.getCanvas().style.cursor='pointer');m.on('mouseleave','faultHit',()=>m.getCanvas().style.cursor='');
   } else if(mode==='ground'){
    const zones={type:'FeatureCollection',features:[
-    {type:'Feature',properties:{c:'#ff493d',o:.24},geometry:{type:'Polygon',coordinates:[[[-3.82,37.30],[-3.54,37.30],[-3.50,37.12],[-3.72,37.05],[-3.82,37.30]]]}},
-    {type:'Feature',properties:{c:'#ffb02e',o:.22},geometry:{type:'Polygon',coordinates:[[[-3.72,37.15],[-3.47,37.18],[-3.46,36.98],[-3.66,36.94],[-3.72,37.15]]]}}
+    {type:'Feature',properties:{c:'#ff7a21',o:.27},geometry:{type:'Polygon',coordinates:[[[-3.82,37.30],[-3.54,37.30],[-3.50,37.12],[-3.72,37.05],[-3.82,37.30]]]}},
+    {type:'Feature',properties:{c:'#ffb25c',o:.25},geometry:{type:'Polygon',coordinates:[[[-3.72,37.15],[-3.47,37.18],[-3.46,36.98],[-3.66,36.94],[-3.72,37.15]]]}}
    ]};m.addSource('zones',{type:'geojson',data:zones});m.addLayer({id:'zones',type:'fill',source:'zones',paint:{'fill-color':['get','c'],'fill-opacity':['get','o'],'fill-outline-color':'rgba(255,255,255,.5)'}});
    m.on('click','zones',e=>infoPanel(el,'Respuesta local del terreno','Zona esquemática de posible amplificación relativa. Los sedimentos blandos pueden amplificar determinadas frecuencias del movimiento; no indican dónde se originará un terremoto.'));
    m.on('mouseenter','zones',()=>m.getCanvas().style.cursor='pointer');m.on('mouseleave','zones',()=>m.getCanvas().style.cursor='');
   } else if(mode==='basin'){
    const basin={type:'Feature',geometry:{type:'Polygon',coordinates:[[[-3.86,37.32],[-3.55,37.34],[-3.43,37.20],[-3.49,36.99],[-3.72,36.96],[-3.88,37.10],[-3.86,37.32]]]},properties:{}};
-   m.addSource('basin',{type:'geojson',data:basin});m.addLayer({id:'basinFill',type:'fill',source:'basin',paint:{'fill-color':'#ff8b2c','fill-opacity':.18,'fill-outline-color':'#ff8b2c'}});
+   m.addSource('basin',{type:'geojson',data:basin});m.addLayer({id:'basinFill',type:'fill',source:'basin',paint:{'fill-color':'#ff8b2c','fill-opacity':.25,'fill-outline-color':'#ff8b2c'}});
    m.on('click','basinFill',()=>infoPanel(el,'Cuenca de Granada','Depresión intramontañosa con relleno sedimentario. Su estructura y materiales condicionan la propagación y respuesta local del movimiento sísmico.'));
    m.on('mouseenter','basinFill',()=>m.getCanvas().style.cursor='pointer');m.on('mouseleave','basinFill',()=>m.getCanvas().style.cursor='');
   } else {
    const region={type:'FeatureCollection',features:[{type:'Feature',geometry:{type:'LineString',coordinates:[[-6.2,36.4],[-4.8,36.7],[-3.6,37.2],[-2.4,37.5],[-1.2,38.0]]},properties:{}}]};
-   m.addSource('betic',{type:'geojson',data:region});m.addLayer({id:'betic',type:'line',source:'betic',paint:{'line-color':'#ff7b25','line-width':5,'line-opacity':.55,'line-blur':1}});
-   m.on('click','betic',()=>infoPanel(el,'Cordillera Bética','Granada se sitúa en el sector central de las Béticas, una de las zonas de mayor sismicidad de la península. La línea es una síntesis visual regional.'));
+   m.addSource('betic',{type:'geojson',data:region});
+   m.addLayer({id:'beticGlow',type:'line',source:'betic',paint:{'line-color':'#ff8b2c','line-width':12,'line-opacity':.12,'line-blur':5}});
+   m.addLayer({id:'betic',type:'line',source:'betic',paint:{'line-color':'#ff7b25','line-width':5,'line-opacity':.72,'line-blur':.6}});
+   m.addLayer({id:'beticHit',type:'line',source:'betic',paint:{'line-color':'#ff7b25','line-width':18,'line-opacity':.001}});
+   const beticInfo=()=>infoPanel(el,'Cordillera Bética','Granada se sitúa en el sector central de las Béticas, una de las zonas de mayor sismicidad de la península. La línea es una síntesis visual regional.');m.on('click','betic',beticInfo);m.on('click','beticHit',beticInfo);
    m.on('mouseenter','betic',()=>m.getCanvas().style.cursor='pointer');m.on('mouseleave','betic',()=>m.getCanvas().style.cursor='');
   }
  });

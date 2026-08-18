@@ -1865,3 +1865,45 @@ body::after{
   86%{opacity:.82;box-shadow:inset 0 0 42px 15px rgba(255,45,35,.72)}
   100%{opacity:0;box-shadow:inset 0 0 0 rgba(255,45,35,0)}
 }
+
+
+/* === SISMIA V20 · glow spheres from video reference === */
+.latest-seismo-marker{
+  color:#44F886!important;
+  filter:drop-shadow(0 0 11px rgba(68,248,134,.9)) drop-shadow(0 8px 18px rgba(0,0,0,.55))!important;
+}
+.latest-seismo-marker.world{color:#44F886!important}
+.latest-seismo-marker .latest-pin{
+  position:relative!important;z-index:3!important;width:15px!important;height:15px!important;border-radius:50%!important;
+  background:radial-gradient(circle at 32% 25%,#f8fff9 0 11%,#9dffba 12% 24%,#44f886 42%,#12a44e 78%,#087432 100%)!important;
+  border:1.8px solid rgba(244,255,247,.96)!important;
+  box-shadow:0 0 0 5px rgba(68,248,134,.13),0 0 14px 4px rgba(68,248,134,.48),0 0 32px 10px rgba(68,248,134,.20)!important;
+  overflow:visible!important;
+}
+.latest-seismo-marker .latest-pin::before,
+.latest-seismo-marker .latest-pin::after{
+  content:""!important;position:absolute!important;left:50%!important;top:50%!important;
+  width:18px!important;height:18px!important;border-radius:50%!important;
+  border:1.5px solid rgba(84,255,146,.86)!important;
+  box-shadow:0 0 8px rgba(68,248,134,.22)!important;
+  transform:translate(-50%,-50%) scale(.55)!important;opacity:.9!important;
+  animation:sismiaV20LatestWave 2.05s cubic-bezier(.16,.65,.35,1) infinite!important;pointer-events:none!important;
+}
+.latest-seismo-marker .latest-pin::after{animation-delay:1.02s!important;border-color:rgba(164,255,192,.58)!important}
+@keyframes sismiaV20LatestWave{
+  0%{transform:translate(-50%,-50%) scale(.55);opacity:.9}
+  70%{opacity:.28}
+  100%{transform:translate(-50%,-50%) scale(3.15);opacity:0}
+}
+.latest-seismo-marker .latest-card{
+  background:rgba(7,10,10,.91)!important;border-color:rgba(88,255,145,.28)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.38),0 0 18px rgba(68,248,134,.08)!important;
+}
+.latest-seismo-marker .latest-card em{color:#58ff94!important}
+.latest-seismo-marker .latest-card strong i{color:#9dffba!important}
+
+/* Geology maps: orange highlighted data above a soft gray basemap */
+.geoMap{background:#eceeef!important}
+.geoMap .maplibregl-canvas{filter:grayscale(1) contrast(.86) brightness(1.17)!important}
+.geoInfoPanel{border-color:rgba(255,139,44,.32)!important;box-shadow:0 12px 34px rgba(0,0,0,.24),0 0 22px rgba(255,139,44,.08)!important}
+.geoInfoPanel b{color:#ff9b43!important}
