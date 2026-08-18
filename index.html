@@ -24,6 +24,7 @@
       <section class="card mapWrap">
         <div class="mapHead"><button class="btn primary mapRefresh" id="refresh">↻ ACTUALIZAR</button><div class="glass"><b id="localCountMap">— eventos</b><span>últimas 72 h</span></div></div>
         <div id="localMap" class="realmap"></div>
+        <div class="mapSources" aria-label="Fuentes de datos"><div class="sourceMeta"><span class="sourceChip" id="localSourceChip"><i></i><b>EMSC</b><span id="localSourceText">conectando</span></span><span class="sourceChip" id="worldSourceChip"><i></i><b>USGS</b><span id="worldSourceText">conectando</span></span></div><div class="updateStamp" id="lastUpdate">Sin actualizar</div></div>
         <div id="waveHud" class="waveHud"><div><b id="waveTitle">PROPAGACIÓN P/S</b><span id="waveText">Selecciona un evento para visualizar la propagación.</span><div class="waveLegend"><span class="waveP">● onda P</span><span class="waveS">● onda S</span></div></div><button class="btn" id="replayWave">REPLAY ONDAS</button></div>
       </section>
       <aside class="card side">
@@ -34,24 +35,20 @@
       </aside>
     </div>
 
-    <section class="card pad section sourcePanel">
-      <div><div class="eyebrow">Fuentes en Internet</div><div class="sourceMeta" style="margin-top:7px"><span class="sourceChip" id="localSourceChip"><i></i><b>EMSC</b><span id="localSourceText">conectando</span></span><span class="sourceChip" id="worldSourceChip"><i></i><b>USGS</b><span id="worldSourceText">conectando</span></span></div></div>
-      <div style="text-align:right"><div class="updateStamp" id="lastUpdate">Sin actualizar</div></div>
+    <section class="card pad section latestEventsModule">
+      <div class="title"><div><h2>Últimos eventos</h2><p>Los 5 terremotos más recientes detectados en el catálogo local.</p></div><span class="badge" id="changeBadge">5 ÚLTIMOS</span></div>
+      <div id="changeGrid" class="changeGrid recentEventsList"><div class="notice cyan">Esperando los últimos eventos…</div></div>
     </section>
 
-    <section class="commandStrip section">
-      <div class="card pad"><div class="title"><div><h2>Qué ha cambiado desde tu última visita</h2><p>Comparativa con el estado guardado al cerrar SISMIA.</p></div><span class="badge" id="changeBadge">NUEVO</span></div><div id="changeGrid" class="changeGrid"><div class="notice cyan">La primera comparación aparecerá después de cerrar y volver a abrir la app.</div></div></div>
-      <div class="card pad"><div class="title"><div><h2>Escenarios próximos</h2><p>Pesos relativos experimentales, no probabilidades calibradas.</p></div></div><div id="scenarioGrid" class="scenarioGrid"></div></div>
+    <section class="card pad section statisticalZoneCard">
+      <div class="statZoneHead"><div><span class="eyebrow">Zona estadística reciente</span><strong id="forecastPlace">—</strong><small id="forecastText">Esperando suficientes eventos.</small></div><span class="badge" id="forecastBadge">CALCULANDO</span></div>
     </section>
 
-    <section class="card pad section">
-      <div class="title"><div><h2>Zona estadística de mayor actividad esperada</h2><p>Calculada con los eventos recientes; no identifica una falla que “vaya a romper”.</p></div><span class="badge" id="forecastBadge">CALCULANDO</span></div>
-      <div class="grid2"><div class="forecastZone"><span class="eyebrow">Centro de densidad reciente</span><strong id="forecastPlace">—</strong><small id="forecastText">Esperando suficientes eventos.</small></div><div class="forecastZone"><span class="eyebrow">Ventana temporal</span><strong id="forecastTime">—</strong><small id="forecastTimeText">Basada en la tasa observada de los últimos 2–3 días.</small></div></div>
-      <div class="divider"></div><div class="title"><div><h2>Heatmap prospectivo</h2><p>Proyección visual del cluster si continúa la migración reciente.</p></div><span class="badge" id="horizonBadge">0–3 H</span></div><div class="horizonBtns" id="horizonBtns"><button class="on" data-h="3">0–3 h</button><button data-h="6">3–6 h</button><button data-h="12">6–12 h</button><button data-h="24">12–24 h</button></div><div class="forecastLabel">La proyección no predice un epicentro: desplaza y ensancha la densidad reciente según la migración observada.</div>
-    </section>
-
-    <section class="card pad section">
-      <details class="details" open><summary id="allLocalSummary">Terremotos recientes</summary><div class="list" id="localList"></div></details>
+    <section class="card pad section quakeHistoryCard">
+      <div class="title quakeHistoryTitle"><div><h2>Historial sísmico</h2><p>SISMIA conserva un mes de catálogo local y muestra solo el periodo que elijas.</p></div></div>
+      <div class="rangeFilters" id="localRangeFilters"><button class="on" data-days="1" onclick="setLocalListRange(1)">1 DÍA</button><button data-days="3" onclick="setLocalListRange(3)">3 DÍAS</button><button data-days="7" onclick="setLocalListRange(7)">7 DÍAS</button><button data-days="30" onclick="setLocalListRange(30)">1 MES</button></div>
+      <div class="rangeSummary" id="allLocalSummary">Cargando catálogo…</div>
+      <div class="list quakeList" id="localList"></div>
     </section>
     <section class="card pad section"><div class="title"><div><h2>¿Lo has sentido?</h2><p>Reporte ciudadano anónimo y aproximado. No sustituye un informe oficial.</p></div><span class="badge">RED SISMIA</span></div><div class="feltBtns"><button data-felt="0">NO</button><button data-felt="1">LEVE</button><button data-felt="2">CLARO</button><button data-felt="3">FUERTE</button></div><div class="communityStats" id="communityStats"><div><b>—</b><span>sin sentir</span></div><div><b>—</b><span>leve</span></div><div><b>—</b><span>claro</span></div><div><b>—</b><span>fuerte</span></div></div><div class="notice cyan section" id="communityNote">Consultando reportes SISMIA de las últimas 24 h…</div></section>
   </main>

@@ -348,3 +348,534 @@ body:before{
   .feltBtns{grid-template-columns:1fr 1fr}.feltBtns button{border-radius:18px}
   .sourceMeta{gap:5px}.sourceChip{padding:7px 8px}
 }
+
+/* =========================================================
+   SISMIA V9 — LIGHTER EARTHY GLASS
+   Same layout / same logic. Lighter, warmer brown atmosphere.
+   ========================================================= */
+:root{
+  --bg:#4a3b31;
+  --panel:#5a493d;
+  --panel2:#46382f;
+  --line:rgba(255,244,228,.14);
+  --text:#fff8ef;
+  --muted:#d0c0b1;
+  --cyan:#a7b68f;
+  --green:#a8b789;
+  --amber:#ffb56c;
+  --red:#dc7654;
+  --violet:#c5a48f;
+}
+
+html,body{background:#4a3b31;color:var(--text)}
+body{
+  background:
+    radial-gradient(900px 620px at 8% -10%,rgba(255,183,105,.25),transparent 61%),
+    radial-gradient(760px 680px at 96% 17%,rgba(164,174,126,.17),transparent 63%),
+    radial-gradient(760px 560px at 48% 105%,rgba(215,126,78,.14),transparent 65%),
+    linear-gradient(155deg,#5f4d40 0%,#504036 35%,#44372f 68%,#3d312b 100%);
+  background-attachment:fixed;
+}
+
+.top{color:#fff9f2}.brand small{color:#d0c0b2}.live{background:rgba(69,55,46,.48);border-color:rgba(255,244,228,.16);color:#d8c9bb;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+
+.nav{
+  background:linear-gradient(180deg,rgba(75,60,50,.88),rgba(66,52,44,.72));
+  border:1px solid rgba(255,245,231,.13);
+  box-shadow:0 14px 34px rgba(43,31,25,.17),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.nav button{color:#d1c1b3}.nav button.on{background:rgba(255,238,218,.14);border-color:rgba(255,243,229,.17);color:#fffaf3;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+
+.card{
+  background:
+    radial-gradient(520px 260px at 0% 0%,rgba(255,193,127,.09),transparent 65%),
+    linear-gradient(145deg,rgba(105,85,70,.78),rgba(79,63,53,.72));
+  border-color:rgba(255,246,233,.14);
+  box-shadow:0 18px 42px rgba(43,31,25,.15),inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(22px) saturate(120%);-webkit-backdrop-filter:blur(22px) saturate(120%);
+}
+
+/* Keep the high-focus areas intentionally darker */
+.mapWrap,.correlation,.sensorScreen,.alert{
+  box-shadow:0 22px 52px rgba(35,25,21,.22),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.side{
+  background:
+    radial-gradient(380px 260px at 96% 0%,rgba(255,169,91,.18),transparent 64%),
+    linear-gradient(150deg,rgba(82,65,54,.92),rgba(55,44,38,.90));
+}
+.correlation{
+  background:
+    radial-gradient(330px 230px at 92% 3%,rgba(219,111,67,.18),transparent 63%),
+    linear-gradient(150deg,rgba(77,59,49,.92),rgba(49,40,35,.90));
+}
+.sensorScreen{
+  background:
+    radial-gradient(430px 260px at 94% 0%,rgba(162,176,128,.18),transparent 64%),
+    linear-gradient(145deg,rgba(76,62,52,.94),rgba(48,40,35,.92));
+}
+.alert{
+  background:
+    radial-gradient(430px 230px at 90% 0%,rgba(229,123,73,.23),transparent 65%),
+    linear-gradient(145deg,rgba(91,64,50,.92),rgba(55,43,37,.90));
+}
+
+.glass{
+  background:rgba(92,75,63,.66);border-color:rgba(255,246,233,.18);color:#fff9f2;
+  box-shadow:0 12px 30px rgba(39,28,23,.16),inset 0 1px 0 rgba(255,255,255,.09)
+}
+.glass span{color:#ddd0c4}
+
+.scoreRow{background:linear-gradient(135deg,rgba(255,181,107,.20),rgba(164,176,128,.10));border-color:rgba(255,241,224,.14)}
+.score:after{background:#504038}.scoreText{color:#eee1d5}
+
+.kpi,.metric,.sensorNum,.sensorStatusBox,.changeItem,.scenario,.dnaCell,.quality,.remoteStat,.timeBox,.communityStats div{
+  border-color:rgba(255,246,233,.14);
+  background:linear-gradient(145deg,rgba(255,248,238,.105),rgba(255,255,255,.042));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 28px rgba(47,34,28,.10)
+}
+.kpi span,.metric span,.sensorNum span,.timeBox span{color:#d4c5b8}
+.kpi strong,.metric strong,.sensorNum strong,.timeBox b{color:#fffaf4}
+.metric small,.event small,.scenario small,.forecastZone small,.sensorSub,.communityStats span{color:#d0c0b2}
+
+.kpi:nth-child(1){background:linear-gradient(145deg,rgba(245,179,112,.28),rgba(132,91,65,.30))}
+.kpi:nth-child(2){background:linear-gradient(145deg,rgba(164,178,131,.26),rgba(87,102,75,.28))}
+.kpi:nth-child(3){background:linear-gradient(145deg,rgba(210,116,77,.27),rgba(121,70,54,.27))}
+.kpi:nth-child(4){background:linear-gradient(145deg,rgba(213,183,145,.22),rgba(115,92,75,.28))}
+
+.grid4 .metric:nth-child(1),.grid3 .metric:nth-child(1){background:linear-gradient(145deg,rgba(244,173,104,.28),rgba(128,87,65,.28))}
+.grid4 .metric:nth-child(2),.grid3 .metric:nth-child(2){background:linear-gradient(145deg,rgba(157,175,127,.27),rgba(81,97,72,.28))}
+.grid4 .metric:nth-child(3),.grid3 .metric:nth-child(3){background:linear-gradient(145deg,rgba(204,111,75,.25),rgba(115,69,54,.27))}
+.grid4 .metric:nth-child(4){background:linear-gradient(145deg,rgba(207,174,137,.22),rgba(111,90,75,.27))}
+
+.event{
+  border-color:rgba(255,246,233,.13);
+  background:linear-gradient(145deg,rgba(255,248,238,.09),rgba(255,255,255,.038));
+  box-shadow:0 10px 24px rgba(47,34,28,.09),inset 0 1px 0 rgba(255,255,255,.055)
+}
+.event:hover{background:linear-gradient(145deg,rgba(255,186,115,.14),rgba(255,255,255,.05));border-color:rgba(255,196,137,.25)}
+.event b{color:#fff8ef}.event small{color:#d3c3b5}.risk{background:rgba(255,248,238,.08);border-color:rgba(255,246,233,.13);color:#eaded3}
+
+.forecastZone{
+  border-color:rgba(255,216,173,.19);
+  background:
+    radial-gradient(190px 150px at 92% 8%,rgba(245,158,83,.20),transparent 70%),
+    linear-gradient(145deg,rgba(156,168,126,.20),rgba(125,83,64,.22));
+}
+.details{background:rgba(90,71,59,.46);border-color:rgba(255,246,233,.13)}
+.details summary{color:#fff8ef}.divider{background:rgba(255,248,238,.12)}
+
+.notice{background:linear-gradient(145deg,rgba(218,126,70,.15),rgba(255,250,242,.045));border-color:rgba(255,196,137,.20);color:#ede0d4}
+.notice.cyan{background:linear-gradient(145deg,rgba(153,169,124,.16),rgba(255,250,242,.045));border-color:rgba(176,190,149,.21)}
+.notice.red{background:linear-gradient(145deg,rgba(203,99,66,.18),rgba(255,250,242,.04));border-color:rgba(225,127,89,.24)}
+
+.btn{background:rgba(255,245,232,.10);border-color:rgba(255,246,233,.16);color:#fff8ef}
+.btn:active{background:rgba(255,245,232,.16)}
+.btn.primary{background:linear-gradient(135deg,#ffd090,#f6a85d 55%,#d8794c);border-color:rgba(255,216,168,.80);color:#382217}
+
+.track,.miniTrack,.distBar,.vibeGauge{background:rgba(61,47,39,.30);border-color:rgba(255,255,255,.08)}
+.motionChart{background:rgba(54,42,35,.58);border-color:rgba(255,246,233,.12)}
+.axis{stroke:rgba(255,255,255,.13)}.chartLabel{fill:#d0c0b2}
+
+.serverBox{background:linear-gradient(145deg,rgba(150,165,121,.17),rgba(91,71,59,.30));border-color:rgba(180,195,153,.18)}
+.sourceChip{background:rgba(255,248,238,.075);border-color:rgba(255,246,233,.13);color:#ddd0c4}
+.updateStamp{color:#d1c2b5}
+
+.waveHud{background:rgba(82,65,54,.80);border-color:rgba(255,198,143,.20);color:#fff8ef}
+.toast{background:rgba(73,58,49,.92);border-color:rgba(255,246,233,.15)}
+.toast p{color:#d3c4b7}.footer{color:#bca99a}
+
+.maplibregl-popup-content{background:rgba(75,60,50,.96)!important;color:#fff9f2!important;border-color:rgba(255,241,224,.20)!important}
+.maplibregl-popup-tip{border-top-color:rgba(75,60,50,.96)!important;border-bottom-color:rgba(75,60,50,.96)!important}
+.popupCell{background:rgba(255,248,238,.07);border-color:rgba(255,246,233,.12)}.popupCell span{color:#d1c0b2}
+
+@media(max-width:800px){
+  body{background:
+    radial-gradient(680px 470px at 8% -6%,rgba(255,182,104,.27),transparent 60%),
+    radial-gradient(580px 520px at 100% 18%,rgba(159,173,129,.18),transparent 62%),
+    linear-gradient(160deg,#625044 0%,#524238 42%,#45382f 74%,#3e322b 100%)}
+  .nav{background:linear-gradient(180deg,rgba(79,63,52,.92),rgba(66,52,44,.86))}
+  .card{background:linear-gradient(145deg,rgba(105,84,69,.82),rgba(77,62,52,.76))}
+}
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 02
+   Requested layout refinements — visual only
+   ========================================================= */
+
+/* Refresh lives inside the map header, replacing the old basin label */
+.mapHead{align-items:flex-start;pointer-events:none}
+.mapHead .mapRefresh{
+  pointer-events:auto;
+  min-height:46px;
+  padding:0 17px;
+  border-radius:17px;
+  white-space:nowrap;
+  letter-spacing:.035em;
+  font-size:10px;
+  box-shadow:
+    0 12px 28px rgba(61,35,21,.24),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    0 0 0 1px rgba(255,187,118,.10);
+}
+.mapHead .mapRefresh::first-letter{font-size:13px}
+
+/* The local forecast calculation remains in the DOM for JS compatibility,
+   but is deliberately removed from the interface. */
+.localForecastSection{display:none!important}
+
+/* Alert Score: exact circular geometry + stronger visual hierarchy */
+.scoreRow{
+  display:grid;
+  grid-template-columns:118px minmax(0,1fr);
+  align-items:center;
+  gap:18px;
+  padding:17px;
+  margin:17px 0 14px;
+  overflow:visible;
+}
+.score{
+  width:118px!important;
+  height:118px!important;
+  min-width:118px;
+  min-height:118px;
+  aspect-ratio:1/1;
+  flex:0 0 118px;
+  border-radius:50%!important;
+  background:
+    conic-gradient(
+      from -90deg,
+      #ffd39a 0%,
+      #ffad60 calc(var(--score)*.72%),
+      #e96f42 calc(var(--score)*1%),
+      rgba(255,248,237,.10) 0
+    );
+  box-shadow:
+    0 0 0 1px rgba(255,220,177,.22),
+    0 0 0 7px rgba(255,168,91,.055),
+    0 16px 34px rgba(56,31,19,.28),
+    0 0 34px rgba(255,153,76,.16);
+  isolation:isolate;
+}
+.score:before{
+  content:"";
+  position:absolute;
+  inset:-5px;
+  border-radius:50%;
+  border:1px solid rgba(255,213,163,.18);
+  pointer-events:none;
+}
+.score:after{
+  inset:10px!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle at 35% 28%,rgba(255,203,145,.13),transparent 34%),
+    linear-gradient(145deg,#4e3c31,#332a25)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -10px 26px rgba(0,0,0,.12);
+}
+.score strong{
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  line-height:.92;
+  font-size:38px!important;
+  letter-spacing:-.055em;
+  color:#fffaf3;
+  text-shadow:0 2px 12px rgba(0,0,0,.22);
+}
+.score strong:after{
+  content:"/100";
+  display:block;
+  margin-top:7px;
+  font-size:8px;
+  line-height:1;
+  letter-spacing:.12em;
+  color:#d6c0ad;
+  font-weight:800;
+}
+.scoreText b{font-size:11px;letter-spacing:.02em;color:#fff8ef}
+.scoreText span{display:inline-block;margin-top:4px;max-width:260px;color:#eaded2;line-height:1.48}
+
+/* Four local KPIs: compact single bento row */
+.kpis{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+  margin-top:2px;
+}
+.kpi{
+  min-width:0;
+  min-height:66px!important;
+  padding:10px 9px!important;
+  border-radius:16px!important;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.kpi span{
+  font-size:6.5px!important;
+  line-height:1.15;
+  letter-spacing:.055em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.kpi strong{
+  font-size:16px!important;
+  line-height:1.05;
+  margin-top:7px!important;
+  letter-spacing:-.035em;
+  white-space:nowrap;
+}
+
+/* With the forecast removed, the state card finishes cleanly after KPIs */
+.side{padding-bottom:20px}
+
+@media(max-width:800px){
+  .mapHead{gap:7px}
+  .mapHead .mapRefresh{min-height:44px;padding:0 13px;border-radius:15px;font-size:9px}
+  .scoreRow{grid-template-columns:106px minmax(0,1fr);gap:14px;padding:15px}
+  .score{width:106px!important;height:106px!important;min-width:106px;min-height:106px;flex-basis:106px}
+  .score strong{font-size:34px!important}
+  .kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+  .kpi{min-height:62px!important;padding:9px 7px!important;border-radius:15px!important}
+  .kpi span{font-size:6px!important}
+  .kpi strong{font-size:14px!important;margin-top:6px!important}
+}
+
+@media(max-width:390px){
+  .mapHead .mapRefresh{padding:0 11px;font-size:8px}
+  .scoreRow{grid-template-columns:98px minmax(0,1fr);gap:12px}
+  .score{width:98px!important;height:98px!important;min-width:98px;min-height:98px;flex-basis:98px}
+  .score strong{font-size:31px!important}
+  .kpi{padding:8px 6px!important}
+  .kpi strong{font-size:13px!important}
+}
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 03
+   Compact sources, latest events, clear statistical zone,
+   30-day catalogue filters and magnitude hierarchy.
+   ========================================================= */
+
+/* Data sources live inside the local map, compact and fixed */
+.mapSources{
+  position:absolute;
+  left:14px;
+  bottom:12px;
+  z-index:7;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  max-width:calc(100% - 28px);
+  padding:5px 7px;
+  border:1px solid rgba(255,246,233,.10);
+  border-radius:14px;
+  background:rgba(58,45,37,.70);
+  -webkit-backdrop-filter:blur(14px) saturate(120%);
+  backdrop-filter:blur(14px) saturate(120%);
+  box-shadow:0 8px 22px rgba(35,23,16,.16);
+  pointer-events:none;
+}
+.mapSources .sourceMeta{display:flex;gap:4px;flex-wrap:nowrap;min-width:0}
+.mapSources .sourceChip{
+  padding:4px 6px;
+  gap:4px;
+  font-size:6.5px;
+  line-height:1;
+  white-space:nowrap;
+  background:rgba(255,248,238,.055);
+  border-color:rgba(255,246,233,.10);
+  color:#e8ddd2;
+}
+.mapSources .sourceChip i{width:5px;height:5px;flex:0 0 5px}
+.mapSources .sourceChip span{max-width:125px;overflow:hidden;text-overflow:ellipsis}
+.mapSources .updateStamp{font-size:6px;line-height:1.2;color:#c6b7a9;white-space:nowrap}
+.waveHud.on{bottom:55px}
+
+/* Latest five local events */
+.latestEventsModule{padding-bottom:14px}
+.latestEventsModule .title{margin-bottom:9px}
+.latestEventsModule .title p{max-width:none}
+.latestEventsModule .badge{white-space:nowrap}
+.changeGrid.recentEventsList{display:grid;grid-template-columns:1fr;gap:6px}
+.recentEvent{
+  --quake:#73aef5;
+  --quakeSoft:rgba(115,174,245,.10);
+  position:relative;
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:62px;
+  padding:8px 10px;
+  border:1px solid color-mix(in srgb,var(--quake) 24%,rgba(255,255,255,.08));
+  border-left:3px solid var(--quake);
+  border-radius:18px;
+  text-align:left;
+  color:#fff7ef;
+  background:linear-gradient(100deg,var(--quakeSoft),rgba(255,255,255,.025) 50%,rgba(61,48,40,.20));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  cursor:pointer;
+}
+.recentEvent:hover{transform:translateY(-1px);filter:brightness(1.04)}
+.recentEvent.isLatest{
+  border-color:color-mix(in srgb,var(--quake) 48%,rgba(255,255,255,.15));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--quake) 14%,transparent),0 8px 20px color-mix(in srgb,var(--quake) 12%,transparent);
+}
+.recentMagnitude{display:flex;align-items:baseline;gap:3px;color:var(--quake)}
+.recentMagnitude span{font-size:8px;font-weight:850;opacity:.78}
+.recentMagnitude strong{font-size:25px;line-height:1;font-weight:950;letter-spacing:-1px}
+.recentEventBody{min-width:0}
+.recentEventTop{display:flex;align-items:center;gap:7px;min-width:0}
+.recentEventTop b{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recentEventTop em,.latestEventFlag{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:3px 6px;
+  font-size:6px;
+  font-style:normal;
+  font-weight:950;
+  letter-spacing:.5px;
+  color:#2c1a10;
+  background:var(--quake);
+  box-shadow:0 0 14px color-mix(in srgb,var(--quake) 30%,transparent);
+}
+.recentEventMeta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px;color:#cdbfb3;font-size:7px;line-height:1.25}
+.recentEventMeta span{white-space:nowrap}
+.recentEventMeta strong{color:#fff5ea;font-weight:850}
+.recentSeverity{
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.05);
+  padding:5px 7px;
+  border-radius:999px;
+  font-size:6px;
+  font-weight:850;
+  color:#e6d8cb;
+  white-space:nowrap;
+}
+
+/* Magnitude palette: blue → yellow → orange → red */
+.mag-blue{--quake:#77b4ff;--quakeSoft:rgba(73,126,190,.18)}
+.mag-yellow{--quake:#e8d06b;--quakeSoft:rgba(167,137,54,.17)}
+.mag-orange{--quake:#f0a05d;--quakeSoft:rgba(185,100,50,.18)}
+.mag-red{--quake:#ef6759;--quakeSoft:rgba(172,69,55,.20)}
+.mag-deep{--quake:#d93737;--quakeSoft:rgba(151,39,39,.27)}
+
+/* Statistical zone: one simple compact card */
+.statisticalZoneCard{padding-top:14px;padding-bottom:14px}
+.statZoneHead{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.statZoneHead>div{min-width:0}
+.statZoneHead .eyebrow{margin-bottom:4px}
+.statZoneHead strong{display:block;font-size:22px;line-height:1.05;color:#fff5eb;letter-spacing:-.5px}
+.statZoneHead small{display:block;margin-top:5px;max-width:650px;font-size:8px;line-height:1.45;color:#cdbfb2}
+.statZoneHead .badge{flex:0 0 auto}
+
+/* Catalogue period controls */
+.quakeHistoryTitle{margin-bottom:10px}
+.rangeFilters{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.rangeFilters button{
+  min-height:28px;
+  padding:0 9px;
+  border:1px solid rgba(255,246,233,.10);
+  border-radius:999px;
+  background:rgba(255,248,238,.045);
+  color:#c7b8aa;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.25px;
+}
+.rangeFilters button.on{
+  color:#2b190f;
+  border-color:transparent;
+  background:linear-gradient(135deg,#f1bd82,#e6884d);
+  box-shadow:0 5px 16px rgba(225,130,68,.20);
+}
+.rangeSummary{margin:2px 0 9px;font-size:7.5px;font-weight:800;color:#bfae9f;text-transform:uppercase;letter-spacing:.35px}
+.quakeList{display:grid;gap:7px}
+
+/* Rich local earthquake cards */
+.event.quakeEvent{
+  --quake:#77b4ff;
+  --quakeSoft:rgba(73,126,190,.18);
+  position:relative;
+  display:grid;
+  grid-template-columns:70px minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  width:100%;
+  padding:10px 12px;
+  min-height:88px;
+  text-align:left;
+  border:1px solid color-mix(in srgb,var(--quake) 22%,rgba(255,255,255,.08));
+  border-left:4px solid var(--quake);
+  border-radius:21px;
+  background:linear-gradient(105deg,var(--quakeSoft),rgba(255,255,255,.028) 45%,rgba(62,49,41,.22));
+  color:#fff8f0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  cursor:pointer;
+}
+.event.quakeEvent:hover{background:linear-gradient(105deg,color-mix(in srgb,var(--quakeSoft) 130%,transparent),rgba(255,255,255,.04),rgba(62,49,41,.25));border-color:color-mix(in srgb,var(--quake) 34%,rgba(255,255,255,.10))}
+.event.quakeEvent.isLatest{
+  border-color:color-mix(in srgb,var(--quake) 52%,rgba(255,255,255,.13));
+  border-left-width:6px;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--quake) 12%,transparent),0 10px 26px color-mix(in srgb,var(--quake) 13%,transparent),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.quakeMagnitude{display:flex;align-items:baseline;gap:3px;color:var(--quake)}
+.quakeMagnitude span{font-size:9px;font-weight:900;opacity:.75}
+.quakeMagnitude strong{font-size:31px;font-weight:950;line-height:1;letter-spacing:-1.5px}
+.quakeMain{min-width:0}
+.quakeTitleRow{display:flex;align-items:center;gap:7px;min-width:0}
+.quakeTitleRow>b{font-size:14px;line-height:1.05;color:#fff8ef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quakeClass{display:inline-flex;border-radius:999px;padding:3px 6px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);font-size:6px;font-weight:850;color:#dacdc1;white-space:nowrap}
+.quakeTime{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+.quakeTime strong{font-size:10px;color:#fff0e1}
+.quakeTime span{font-size:8px;color:#cfbfb1}
+.quakeFacts{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-top:7px}
+.quakeFacts>span{display:grid;gap:1px}
+.quakeFacts small{font-size:6px;text-transform:uppercase;letter-spacing:.3px;color:#a99584}
+.quakeFacts b{font-size:9px;color:#f0e4d8}
+.latestEventFlag{align-self:start;margin-top:2px;color:#26160d}
+
+@media(max-width:800px){
+  .mapSources{left:10px;bottom:10px;right:10px;max-width:none;justify-content:space-between;padding:5px 6px;border-radius:12px}
+  .mapSources .sourceChip{font-size:5.8px;padding:4px 5px}
+  .mapSources .sourceChip span{max-width:90px}
+  .mapSources .updateStamp{font-size:5.5px}
+  .waveHud.on{bottom:52px}
+  .recentEvent{grid-template-columns:50px minmax(0,1fr);gap:8px;padding:8px 9px;min-height:58px;border-radius:16px}
+  .recentMagnitude strong{font-size:22px}
+  .recentSeverity{display:none}
+  .recentEventTop b{font-size:10px}
+  .recentEventMeta{gap:5px;font-size:6.4px}
+  .statZoneHead{align-items:flex-start}
+  .statZoneHead strong{font-size:19px}
+  .statZoneHead small{font-size:7.2px}
+  .rangeFilters{gap:4px}
+  .rangeFilters button{min-height:27px;padding:0 8px;font-size:6.5px}
+  .event.quakeEvent{grid-template-columns:58px minmax(0,1fr);gap:9px;padding:10px;min-height:92px;border-radius:18px}
+  .event.quakeEvent.isLatest{border-left-width:5px}
+  .quakeMagnitude strong{font-size:27px}
+  .quakeTitleRow{flex-wrap:wrap;gap:5px}
+  .quakeTitleRow>b{font-size:12px;max-width:100%}
+  .quakeTime{gap:6px;margin-top:4px}
+  .quakeTime strong{font-size:9px}.quakeTime span{font-size:7px}
+  .quakeFacts{gap:9px;margin-top:6px}
+  .quakeFacts small{font-size:5.5px}.quakeFacts b{font-size:8px}
+  .latestEventFlag{position:absolute;top:8px;right:8px;font-size:5.5px;padding:3px 5px}
+}
+
+@media(max-width:430px){
+  .mapSources .updateStamp{display:none}
+  .mapSources{width:auto;right:auto;max-width:calc(100% - 20px)}
+  .recentEventMeta span:nth-child(4),.recentEventMeta span:nth-child(5){display:none}
+  .statZoneHead .badge{font-size:6px;padding:5px 7px}
+  .quakeFacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}
+  .quakeFacts b{white-space:nowrap}
+}
