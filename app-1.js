@@ -61,62 +61,75 @@ function updateLatestMarkers(){
 function addGranada(map){if(map.getSource('granada'))return;map.addSource('granada',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[G.lon,G.lat]}}});map.addLayer({id:'granada-ring',type:'circle',source:'granada',paint:{'circle-radius':10,'circle-color':'rgba(255,151,73,.18)','circle-stroke-color':'#ff9a4d','circle-stroke-width':2.4}});map.addLayer({id:'granada-label',type:'symbol',source:'granada',layout:{'text-field':'GRANADA','text-size':12,'text-offset':[0,1.6],'text-anchor':'top'},paint:{'text-color':'#ffffff','text-halo-color':'#08090c','text-halo-width':1.8}})}
 function addLocalLayers(map){if(map.getSource('local-quakes'))return;
 map.addSource('local-quakes',{type:'geojson',data:eventFC([])});
-map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:13,paint:{
-  'heatmap-weight':['interpolate',['exponential',1.55],['get','mag'],1.5,.10,2,.20,3,.48,4,.76,5,1],
-  'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.82,9,1.05,11,1.32,13,.88],
-  'heatmap-radius':['interpolate',['linear'],['zoom'],7,11,9,18,11,27,13,34],
+const quakeColor=['step',['to-number',['get','mag'],0],
+  '#3fe7d0',2,'#f0d45c',3,'#ff9b43',4,'#ff5948',5,'#e7193f'
+];
+map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:14,paint:{
+  'heatmap-weight':['interpolate',['exponential',1.45],['to-number',['get','mag'],0],1.5,.14,2,.26,3,.55,4,.82,5,1],
+  'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.78,9,1.02,11,1.26,14,.92],
+  'heatmap-radius':['interpolate',['linear'],['zoom'],7,12,9,20,11,30,14,38],
   'heatmap-color':['interpolate',['linear'],['heatmap-density'],
     0,'rgba(0,0,0,0)',
-    .10,'rgba(32,92,255,.05)',
-    .24,'rgba(37,188,255,.18)',
-    .40,'rgba(73,238,199,.24)',
-    .58,'rgba(228,220,91,.29)',
-    .76,'rgba(255,151,72,.36)',
-    .91,'rgba(255,77,76,.48)',
-    1,'rgba(226,24,57,.58)'
+    .10,'rgba(63,231,208,.06)',
+    .25,'rgba(63,231,208,.20)',
+    .42,'rgba(240,212,92,.25)',
+    .61,'rgba(255,155,67,.34)',
+    .80,'rgba(255,89,72,.46)',
+    1,'rgba(231,25,63,.62)'
   ],
-  'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.48,10,.62,13,.28]
+  'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.42,10,.58,14,.26]
 }});
 map.addLayer({id:'local-glow',type:'circle',source:'local-quakes',paint:{
   'circle-radius':['interpolate',['linear'],['zoom'],
-    7,['interpolate',['linear'],['get','mag'],1.5,5,2,6,3,8,4,10,5,13],
-    10,['interpolate',['linear'],['get','mag'],1.5,8,2,10,3,14,4,18,5,23],
-    13,['interpolate',['linear'],['get','mag'],1.5,11,2,14,3,19,4,25,5,32]
+    7,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,5.5,2,6.5,3,9,4,12,5,15],
+    10,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,9,2,10.5,3,14.5,4,19,5,24],
+    13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,12,2,14,3,19,4,25,5,32]
   ],
-  'circle-color':['interpolate',['linear'],['get','mag'],
-    1.5,'#43dcff',1.9,'#58e5b1',2.4,'#e9d060',3,'#ff9f50',3.6,'#ff6758',4.3,'#ff3f47',5,'#d91535'
-  ],
-  'circle-opacity':['interpolate',['linear'],['zoom'],7,.18,10,.28,13,.16],
-  'circle-blur':.82,
+  'circle-color':quakeColor,
+  'circle-opacity':['interpolate',['linear'],['zoom'],7,.34,10,.43,13,.30],
+  'circle-blur':.78,
   'circle-stroke-width':0
 }});
 map.addLayer({id:'local-points',type:'circle',source:'local-quakes',paint:{
   'circle-radius':['case',['boolean',['feature-state','selected'],false],
     ['interpolate',['linear'],['zoom'],
-      7,['interpolate',['linear'],['get','mag'],1.5,4.2,2,4.8,3,6.2,4,7.8,5,9.5],
-      10,['interpolate',['linear'],['get','mag'],1.5,7,2,7.8,3,10,4,12.5,5,15.5],
-      13,['interpolate',['linear'],['get','mag'],1.5,9,2,10,3,13,4,16.5,5,20]
+      7,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,5,2,5.8,3,7.2,4,9,5,11],
+      10,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,7.3,2,8,3,10.2,4,12.8,5,15.5],
+      13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,9,2,10,3,12.5,4,15.8,5,19]
     ],
     ['interpolate',['linear'],['zoom'],
-      7,['interpolate',['linear'],['get','mag'],1.5,2.2,2,2.7,3,3.7,4,4.8,5,6],
-      10,['interpolate',['linear'],['get','mag'],1.5,4.4,2,5,3,6.7,4,8.6,5,10.8],
-      13,['interpolate',['linear'],['get','mag'],1.5,6.2,2,7,3,9.2,4,11.8,5,14.8]
+      7,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,3.2,2,3.7,3,4.7,4,5.9,5,7.2],
+      10,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,5.2,2,5.8,3,7.2,4,9,5,11],
+      13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,6.8,2,7.5,3,9.4,4,11.8,5,14.5]
     ]
   ],
-  'circle-color':['interpolate',['linear'],['get','mag'],
-    1.5,'#43dcff',1.9,'#58e5b1',2.4,'#e9d060',3,'#ff9f50',3.6,'#ff6758',4.3,'#ff3f47',5,'#d91535'
-  ],
-  'circle-stroke-color':['case',['boolean',['feature-state','selected'],false],'#ffffff','rgba(255,255,255,.92)'],
-  'circle-stroke-width':['case',['boolean',['feature-state','selected'],false],3,1.15],
-  'circle-opacity':.96
+  'circle-color':quakeColor,
+  'circle-stroke-color':['case',['boolean',['feature-state','selected'],false],'#ffffff','rgba(255,255,255,.96)'],
+  'circle-stroke-width':['case',['boolean',['feature-state','selected'],false],3.2,1.45],
+  'circle-opacity':1
 }});
 map.on('click','local-points',ev=>{const f=ev.features?.[0];if(!f)return;const e=local.find(x=>String(x.id)===String(f.properties.id));if(e)showLocalEvent(e)});
 map.on('mouseenter','local-points',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','local-points',()=>map.getCanvas().style.cursor='');
 map.addSource('forecast-zone',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-map.addLayer({id:'forecast-zone-fill',type:'fill',source:'forecast-zone',paint:{'fill-color':'#ff9a4d','fill-opacity':.035}});
-map.addLayer({id:'forecast-zone-line',type:'line',source:'forecast-zone',paint:{'line-color':'#ffad69','line-width':2,'line-dasharray':[3,2],'line-opacity':.88}});
+map.addLayer({id:'forecast-zone-fill',type:'fill',source:'forecast-zone',paint:{'fill-color':'#ff9a4d','fill-opacity':.025}});
+map.addLayer({id:'forecast-zone-line',type:'line',source:'forecast-zone',paint:{'line-color':'#ffad69','line-width':1.8,'line-dasharray':[3,2],'line-opacity':.72}});
 }
-function addWorldLayers(map){if(map.getSource('world-quakes'))return;map.addSource('world-quakes',{type:'geojson',data:eventFC([])});map.addLayer({id:'world-points',type:'circle',source:'world-quakes',paint:{'circle-radius':['interpolate',['linear'],['get','mag'],5.5,5,7,11,9,18],'circle-color':['step',['get','mag'],'#ffc45f',6.5,'#ff9e5f',7.5,'#ff6377'],'circle-stroke-color':'#fff','circle-stroke-width':.7,'circle-opacity':.85}});map.on('click','world-points',ev=>{const f=ev.features?.[0];if(!f)return;selectWorld(String(f.properties.id))});map.addSource('world-link',{type:'geojson',data:{type:'FeatureCollection',features:[]}});map.addLayer({id:'world-link-line',type:'line',source:'world-link',paint:{'line-color':'#58e6ff','line-width':2,'line-dasharray':[2,2],'line-opacity':.75}})}
+function addWorldLayers(map){if(map.getSource('world-quakes'))return;
+map.addSource('world-quakes',{type:'geojson',data:eventFC([])});
+map.addLayer({id:'world-glow',type:'circle',source:'world-quakes',paint:{
+  'circle-radius':['interpolate',['linear'],['to-number',['get','mag'],0],5.5,12,6.5,17,7.5,24,9,34],
+  'circle-color':['step',['to-number',['get','mag'],0],'#ffb15d',6.5,'#ff7a49',7.5,'#ef2942'],
+  'circle-opacity':.28,'circle-blur':.76,'circle-stroke-width':0
+}});
+map.addLayer({id:'world-points',type:'circle',source:'world-quakes',paint:{
+  'circle-radius':['interpolate',['linear'],['zoom'],0.8,['interpolate',['linear'],['to-number',['get','mag'],0],5.5,4,7,7,9,10],3,['interpolate',['linear'],['to-number',['get','mag'],0],5.5,6,7,10,9,15]],
+  'circle-color':['step',['to-number',['get','mag'],0],'#ffb15d',6.5,'#ff7a49',7.5,'#ef2942'],
+  'circle-stroke-color':'#ffffff','circle-stroke-width':1.35,'circle-opacity':1
+}});
+map.on('click','world-points',ev=>{const f=ev.features?.[0];if(!f)return;selectWorld(String(f.properties.id))});
+map.addSource('world-link',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+map.addLayer({id:'world-link-line',type:'line',source:'world-link',paint:{'line-color':'#ff9a4d','line-width':2,'line-dasharray':[2,2],'line-opacity':.78}})
+}
 function tuneLocalBaseMap(map){
   const layers=map.getStyle()?.layers||[];
   for(const layer of layers){
