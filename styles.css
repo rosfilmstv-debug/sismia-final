@@ -1785,3 +1785,36 @@ body::after{
   .mapEventFacts b{font-size:8.5px!important}
   .sismiaSatelliteCtrl .sismiaSatelliteBtn{min-width:76px!important;height:31px!important;padding:0 8px!important}
 }
+
+
+/* ============================================================
+   SISMIA MAP V16 — final map-only overrides
+   Esferas + aura térmica + full map estable + último con ondas
+   ============================================================ */
+.realmap,.fullMapCanvas{filter:none!important;isolation:isolate!important}
+
+/* La vista MAPA debe ocupar de verdad toda el área disponible. */
+.fullMapPage.on{display:block!important;position:fixed!important;left:0!important;right:0!important;top:var(--sismia-map-top,118px)!important;bottom:0!important;z-index:42!important;background:#050608!important;overflow:hidden!important}
+.fullMapPage.on .fullMapShell{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important;background:#050608!important}
+.fullMapPage.on .fullMapCanvas{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:100%!important;background:#050608!important}
+
+/* Satélite visible y consistente en AHORA, MAPA y MUNDO. */
+.sismiaSatelliteCtrl{margin-right:10px!important;margin-bottom:42px!important;background:transparent!important;box-shadow:none!important}
+.sismiaSatelliteBtn{display:flex!important;align-items:center!important;gap:6px!important;width:auto!important;min-width:82px!important;height:32px!important;padding:0 10px!important;border-radius:999px!important;background:rgba(10,12,15,.86)!important;border:1px solid rgba(255,255,255,.18)!important;color:#fff!important;backdrop-filter:blur(12px)!important;box-shadow:0 8px 24px rgba(0,0,0,.25)!important}
+.sismiaSatelliteBtn span{font-size:12px!important;color:#ff9b4a!important}.sismiaSatelliteBtn b{font-size:8px!important;letter-spacing:.07em!important}.sismiaSatelliteBtn.on{background:rgba(255,145,56,.94)!important;color:#111!important;border-color:rgba(255,255,255,.7)!important}.sismiaSatelliteBtn.on span{color:#111!important}
+
+/* Último seísmo: ondas pequeñas, no invasivas. */
+.latest-seismo-marker .latest-pin{position:relative!important;z-index:2!important;overflow:visible!important}
+.latest-seismo-marker .latest-pin::before,.latest-seismo-marker .latest-pin::after{content:"";position:absolute;left:50%;top:50%;width:100%;height:100%;border:1.3px solid rgba(255,155,74,.78);border-radius:50%;transform:translate(-50%,-50%) scale(1);opacity:.72;pointer-events:none;animation:sismiaLatestWave 2.2s ease-out infinite}
+.latest-seismo-marker .latest-pin::after{animation-delay:1.1s;border-color:rgba(255,255,255,.48)}
+@keyframes sismiaLatestWave{0%{transform:translate(-50%,-50%) scale(1);opacity:.72}75%,100%{transform:translate(-50%,-50%) scale(2.35);opacity:0}}
+
+/* El marcador y su tarjeta deben quedar por encima de las ondas. */
+.latest-seismo-marker .latest-card{position:relative!important;z-index:3!important}
+
+@media(max-width:800px){
+  .sismiaSatelliteCtrl{margin-right:8px!important;margin-bottom:38px!important}
+  .sismiaSatelliteBtn{min-width:74px!important;height:30px!important;padding:0 9px!important}
+  .sismiaSatelliteBtn b{font-size:7.5px!important}
+  .fullMapPage.on .fullMapShell,.fullMapPage.on .fullMapCanvas{height:100%!important}
+}
