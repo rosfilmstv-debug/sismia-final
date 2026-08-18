@@ -1429,3 +1429,94 @@ body::after{
   .card,.alert,.serverBox,.side,.correlation,.sensorScreen{backdrop-filter:blur(22px) saturate(104%)!important;-webkit-backdrop-filter:blur(22px) saturate(104%)!important}
 }
 @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none!important}}
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 09 — MAP FOCUS / SINGLE EVENT PANEL
+   Local map only. No seismic-wave preview animation.
+   ========================================================= */
+
+/* Remove every remaining expansion-wave affordance */
+.waveHud,.waveLegend,.waveP,.waveS,.quake-wave{display:none!important}
+
+/* Map gets a cleaner graphite/orange/white treatment */
+#localMap{background:#07080a!important}
+#localMap .maplibregl-canvas-container{background:#07080a!important}
+#localMap:after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(circle at 54% 43%,rgba(255,151,73,.055),transparent 34%),linear-gradient(180deg,rgba(255,255,255,.012),rgba(0,0,0,.10));
+  box-shadow:inset 0 0 70px rgba(0,0,0,.34)
+}
+#localMap .maplibregl-control-container{position:relative;z-index:3}
+.maplibregl-ctrl-group{background:rgba(17,19,22,.88)!important;border-color:rgba(255,255,255,.14)!important}
+.maplibregl-ctrl-group button{filter:invert(1) grayscale(1) brightness(1.25)!important}
+
+/* One fixed information card, never multiple map popups */
+.mapEventPanel{
+  --eventTone:#ff9b42;
+  position:absolute;left:14px;bottom:54px;z-index:38;
+  width:min(310px,calc(100% - 28px));
+  padding:14px 14px 13px;
+  border-radius:19px;
+  border:1px solid rgba(255,255,255,.17);
+  background:linear-gradient(150deg,rgba(18,20,23,.96),rgba(8,10,12,.91));
+  color:#f7f8fa;
+  box-shadow:0 20px 48px rgba(0,0,0,.48),inset 4px 0 0 var(--eventTone),inset 0 1px 0 rgba(255,255,255,.08);
+  -webkit-backdrop-filter:blur(22px) saturate(115%);backdrop-filter:blur(22px) saturate(115%);
+  opacity:0;visibility:hidden;transform:translateY(8px) scale(.985);pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease,visibility .18s
+}
+.mapEventPanel.on{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.mapEventPanel.mag-blue{--eventTone:#f2f5f8}.mapEventPanel.mag-yellow{--eventTone:#ffd764}.mapEventPanel.mag-orange{--eventTone:#ff9b42}.mapEventPanel.mag-red{--eventTone:#ff5d3d}.mapEventPanel.mag-deep{--eventTone:#ef252f}
+.mapEventClose{
+  position:absolute;right:9px;top:8px;z-index:2;width:31px;height:31px;padding:0;
+  display:grid;place-items:center;border:1px solid rgba(255,255,255,.25);border-radius:50%;
+  background:rgba(255,255,255,.09);color:#fff!important;font-size:23px!important;font-weight:400;line-height:1;
+  box-shadow:0 5px 16px rgba(0,0,0,.28);cursor:pointer;-webkit-tap-highlight-color:transparent
+}
+.mapEventClose:hover,.mapEventClose:active{background:#fff;color:#0b0c0f!important;transform:scale(.96)}
+.mapEventKicker{padding-right:38px;color:var(--eventTone);font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.mapEventHeadline{display:flex;align-items:center;gap:10px;margin:5px 0 11px;padding-right:32px}
+.mapEventHeadline>strong{font-size:31px;line-height:.95;letter-spacing:-.045em;color:var(--eventTone)}
+.mapEventHeadline div{min-width:0}.mapEventHeadline b{display:block;font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mapEventHeadline span{display:block;margin-top:3px;font-size:9px;color:#b8bec6}
+.mapEventFacts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mapEventFacts span{min-width:0;padding:7px 8px;border-radius:11px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08)}
+.mapEventFacts small{display:block;font-size:6.5px;letter-spacing:.05em;text-transform:uppercase;color:#9299a2}.mapEventFacts b{display:block;margin-top:2px;font-size:9px;color:#f2f4f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Native MapLibre popup styling stays useful on the world map; close X is now obvious */
+.maplibregl-popup-close-button{color:#fff!important;background:rgba(255,255,255,.08)!important;border-radius:50%!important;width:28px!important;height:28px!important;right:7px!important;top:7px!important;font-size:20px!important;line-height:25px!important}
+.maplibregl-popup-close-button:hover{background:#fff!important;color:#111318!important}
+
+/* Latest quake: no expanding rings, bigger information tag */
+.latest-seismo-marker{width:18px!important;height:18px!important;color:#ff9a4d!important;filter:drop-shadow(0 0 10px rgba(255,132,55,.85))!important}
+.latest-seismo-marker.world{color:#ff6749!important}
+.latest-seismo-marker .quake-core,.latest-seismo-marker .quake-tag{display:none!important}
+.latest-seismo-marker .latest-pin{
+  position:absolute;left:50%;top:50%;width:15px;height:15px;transform:translate(-50%,-50%);border-radius:50%;
+  background:currentColor;border:3px solid #fff;box-shadow:0 0 0 3px rgba(0,0,0,.48),0 0 18px currentColor;z-index:4
+}
+.latest-seismo-marker .latest-card{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;
+  min-width:116px;max-width:160px;padding:6px 8px 7px;border-radius:12px;
+  background:rgba(10,11,14,.93);border:1px solid rgba(255,255,255,.18);color:#fff;
+  box-shadow:0 10px 28px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.07);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);pointer-events:none
+}
+.latest-seismo-marker .latest-card em{display:block;color:#ff9a4d;font-style:normal;font-size:6.5px;font-weight:950;letter-spacing:.11em}
+.latest-seismo-marker .latest-card strong{display:block;margin-top:2px;font-size:13px;line-height:1;color:#fff;white-space:nowrap}.latest-seismo-marker .latest-card strong i{font-style:normal;color:#ffb77e;font-size:10px}
+.latest-seismo-marker .latest-card small{display:block;margin-top:3px;color:#b8bdc4;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Sources stay visible below the fixed card */
+.mapSources{z-index:39!important;background:rgba(15,17,20,.80)!important;border-color:rgba(255,255,255,.12)!important}
+.mapSources .sourceChip{background:rgba(255,255,255,.055)!important;color:#e8eaed!important;border-color:rgba(255,255,255,.09)!important}.mapSources .updateStamp{color:#aeb4bc!important}
+
+@media(max-width:800px){
+  .mapEventPanel{left:10px;bottom:51px;width:min(300px,calc(100% - 20px));padding:12px 12px 11px;border-radius:17px}
+  .mapEventClose{width:29px;height:29px;font-size:21px!important;right:8px;top:7px}
+  .mapEventHeadline>strong{font-size:28px}.mapEventHeadline b{font-size:11px}.mapEventHeadline span{font-size:8.5px}
+  .mapEventFacts b{font-size:8.5px}
+  .latest-seismo-marker .latest-card{min-width:105px;max-width:140px;padding:5px 7px 6px}.latest-seismo-marker .latest-card strong{font-size:12px}.latest-seismo-marker .latest-card small{font-size:7.5px}
+}
+@media(max-width:390px){
+  .mapEventPanel{bottom:49px;width:calc(100% - 20px)}
+  .mapEventFacts{gap:4px}.mapEventFacts span{padding:6px}.mapEventFacts small{font-size:6px}.mapEventFacts b{font-size:8px}
+}
