@@ -43,7 +43,7 @@ function latestMarkerElement(kind,e){const el=document.createElement('button'),p
 function mapForMarker(el){return [...[localMapObj,fullLocalMapObj,worldMapObj]].find(m=>m&&m.getContainer()?.contains(el))||localMapObj}
 function syncLatestMarker(kind,e,map){const old=latestMarkers.get(map);if(old){try{old.remove()}catch(_){}}if(!e||!map)return;const el=latestMarkerElement(kind,e);const marker=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([e.lon,e.lat]).addTo(map);latestMarkers.set(map,marker)}
 function addGranada(map){if(map.getSource('granada'))return;map.addSource('granada',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[G.lon,G.lat]}}});map.addLayer({id:'granada-ring',type:'circle',source:'granada',paint:{'circle-radius':8,'circle-color':'rgba(255,255,255,.10)','circle-stroke-color':'#ffffff','circle-stroke-width':1.6}});map.addLayer({id:'granada-label',type:'symbol',source:'granada',layout:{'text-field':'GRANADA','text-size':12,'text-offset':[0,1.5],'text-anchor':'top'},paint:{'text-color':'#ffffff','text-halo-color':'#050608','text-halo-width':1.6}})}
-function localQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2f9cff',2,'#ffd45a',3,'#ff9a43',4,'#ff5148',5,'#e92336']}
+function localQuakeColor(){return ['step',['to-number',['get','mag'],0],'#238CFF',2,'#FFD43B',3,'#FF8A32',4,'#FF423D',5,'#E51F37']}
 function addLocalLayers(map){if(map.getSource('local-quakes'))return;
   map.addSource('local-quakes',{type:'geojson',data:eventFC([])});
   const qc=localQuakeColor();
@@ -56,7 +56,7 @@ function addLocalLayers(map){if(map.getSource('local-quakes'))return;
       13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,12,2,14,3,18,4,23,5,29]
     ],
     'circle-color':qc,
-    'circle-opacity':['interpolate',['linear'],['zoom'],7,.24,10,.31,13,.34],
+    'circle-opacity':['interpolate',['linear'],['zoom'],7,.24,10,.30,13,.34],
     'circle-blur':.82,
     'circle-stroke-width':0
   }});
@@ -74,7 +74,7 @@ function addLocalLayers(map){if(map.getSource('local-quakes'))return;
     ],
     'circle-color':qc,
     'circle-stroke-color':'#ffffff',
-    'circle-stroke-width':['case',['boolean',['feature-state','selected'],false],2.7,1.15],
+    'circle-stroke-width':['case',['boolean',['feature-state','selected'],false],3.0,1.35],
     'circle-opacity':1
   }});
 
@@ -136,8 +136,8 @@ function clearSelectedLocalPoint(map){if(!map)return;const id=localSelectedIds.g
 function closeLocalEventPanel(map){if(!map)return;clearSelectedLocalPoint(map);const panel=localMapPanels.get(map);if(panel)panel.classList.remove('on')}
 window.closeLocalMapEvent=()=>{[localMapObj,fullLocalMapObj].filter(Boolean).forEach(closeLocalEventPanel);selectedLocal=null};
 function localEventPanelHTML(e){const t=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon),depth=Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—';return `<button type="button" class="mapEventClose" aria-label="Cerrar información">×</button><div class="mapEventKicker">${severity(e.mag)}</div><div class="mapEventHeadline"><strong>M${e.mag.toFixed(1)}</strong><div><b>${safeMapText(t.name)}</b><span>${age(e.time)} · ${dateLocal(e.time)}</span></div></div><div class="mapEventFacts"><span><small>Profundidad</small><b>${depth}</b></span><span><small>Granada</small><b>${dG.toFixed(1)} km</b></span><span><small>Fuente</small><b>${safeMapText(e.source)}</b></span></div>`}
-function showLocalEvent(e,map=ensureLocalMap()){const panel=ensureLocalEventPanel(map);if(!map||!panel)return;clearSelectedLocalPoint(map);selectedLocal=e;localSelectedIds.set(map,String(e.id));try{map.setFeatureState({source:'local-quakes',id:String(e.id)},{selected:true})}catch(_){}panel.innerHTML=localEventPanelHTML(e);panel.className=`mapEventPanel on ${quakeTone(e.mag)}`;panel.querySelector('.mapEventClose').onclick=()=>closeLocalEventPanel(map);const full=map===fullLocalMapObj,mobile=window.innerWidth<=760;map.easeTo({center:[e.lon,e.lat],zoom:Math.max(map.getZoom(),full?10.4:10.9),padding:{top:24,right:mobile?24:(full?330:290),bottom:24,left:24},duration:520,essential:true})}
-window.openLocal=id=>{const e=local.find(x=>String(x.id)===String(id));if(e){document.querySelector('[data-view="now"]')?.click();setTimeout(()=>showLocalEvent(e,ensureLocalMap()),100)}};
+function showLocalEvent(e,map=ensureLocalMap()){const panel=ensureLocalEventPanel(map);if(!map||!panel)return;clearSelectedLocalPoint(map);selectedLocal=e;localSelectedIds.set(map,String(e.id));try{map.setFeatureState({source:'local-quakes',id:String(e.id)},{selected:true})}catch(_){}panel.innerHTML=localEventPanelHTML(e);panel.className=`mapEventPanel on ${quakeTone(e.mag)}`;panel.querySelector('.mapEventClose').onclick=()=>closeLocalEventPanel(map);const full=map===fullLocalMapObj,mobile=window.innerWidth<=760;const padding=mobile?{top:28,right:18,bottom:188,left:18}:{top:28,right:24,bottom:42,left:full?338:326};map.easeTo({center:[e.lon,e.lat],zoom:Math.max(map.getZoom(),full?10.25:10.55),padding,duration:480,essential:true})}
+window.openLocal=id=>{const e=local.find(x=>String(x.id)===String(id));if(!e)return;document.querySelector('[data-view="now"]')?.click();const go=()=>{const wrap=$('localMap')?.closest('.mapWrap')||$('localMap');if(wrap){wrap.scrollIntoView({behavior:'smooth',block:'start'});const nav=document.querySelector('.nav');const offset=(nav?.getBoundingClientRect().height||0)+8;setTimeout(()=>window.scrollBy({top:-offset,behavior:'smooth'}),40)}setTimeout(()=>{const m=ensureLocalMap();m?.resize?.();showLocalEvent(e,m)},360)};requestAnimationFrame(go)};
 function sizeFullMapPage(){const nav=document.querySelector('.nav'),top=nav?Math.ceil(nav.getBoundingClientRect().bottom+4):116;document.documentElement.style.setProperty('--sismia-map-top',top+'px');setTimeout(()=>fullLocalMapObj?.resize(),30)}
 window.addEventListener('resize',()=>{if(document.getElementById('map')?.classList.contains('on'))sizeFullMapPage()});
 function weightedCenter(es){if(!es.length)return {lat:G.lat,lon:G.lon};const now=Date.now();let sw=0,la=0,lo=0;for(const e of es){const ageH=Math.max(.05,(now-e.time)/36e5),w=(1+Math.max(0,e.mag-MC))*(1/(1+ageH/6));sw+=w;la+=e.lat*w;lo+=e.lon*w}return {lat:la/sw,lon:lo/sw}}

@@ -1700,3 +1700,37 @@ body::after{
   }
   .sismiaSatelliteCtrl .sismiaSatelliteBtn b{font-size:7px!important}
 }
+
+
+/* === SISMIA V9 CHANGE 14 · FINAL MAP STABILITY === */
+/* Keep the selected quake card anchored bottom-left, above source chips. */
+.mapWrap,.fullMapShell{position:relative!important}
+.mapEventPanel{
+  position:absolute!important;
+  z-index:46!important;
+  top:auto!important;
+  right:auto!important;
+  left:14px!important;
+  bottom:58px!important;
+  width:min(322px,calc(100% - 28px))!important;
+  max-width:322px!important;
+  padding:14px 14px 13px!important;
+  transform:translateY(7px) scale(.99)!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.mapEventPanel.on{transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+.mapEventClose{
+  top:8px!important;right:9px!important;
+  background:rgba(10,12,15,.78)!important;
+  color:#fff!important;
+  border:2px solid rgba(255,255,255,.78)!important;
+  font-size:23px!important;font-weight:700!important;
+}
+.mapEventClose:hover,.mapEventClose:active{background:#fff!important;color:#090b0e!important}
+/* Explicit magnitude colours so no later theme rule can wash them out. */
+.mapEventPanel.mag-blue{--eventTone:#238CFF!important}.mapEventPanel.mag-yellow{--eventTone:#FFD43B!important}.mapEventPanel.mag-orange{--eventTone:#FF8A32!important}.mapEventPanel.mag-red{--eventTone:#FF423D!important}.mapEventPanel.mag-deep{--eventTone:#E51F37!important}
+@media(max-width:800px){
+  .mapEventPanel{left:10px!important;right:auto!important;bottom:55px!important;top:auto!important;width:calc(100% - 20px)!important;max-width:none!important;padding:12px!important}
+}
