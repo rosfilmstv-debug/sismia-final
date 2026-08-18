@@ -974,3 +974,85 @@ body{
   .kpi span{font-size:5.2px!important}
   .kpi strong{font-size:11.5px!important}
 }
+
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 05 — categories, filters, readability
+   ========================================================= */
+.sideHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+.sideHeaderCopy{min-width:0}
+.feltJumpBtn{
+  flex:0 0 auto;min-height:34px;padding:0 11px;border-radius:999px;
+  border:1px solid rgba(255,197,138,.58);background:linear-gradient(135deg,#ffbf78,#f08c4d 62%,#d66d42);
+  color:#2c190f;font-size:8.5px;font-weight:950;letter-spacing:.035em;box-shadow:0 8px 20px rgba(203,96,46,.22),inset 0 1px 0 rgba(255,255,255,.45);
+  cursor:pointer;white-space:nowrap
+}
+.feltJumpBtn:active{transform:scale(.97)}
+.feltReportCard{scroll-margin-top:18px}
+
+/* Bigger KPI values without changing card dimensions */
+.kpi span{font-size:7.4px!important;line-height:1.05!important}
+.kpi strong{font-size:18px!important;line-height:1!important;margin-top:6px!important;letter-spacing:-.35px!important}
+
+/* Category is always visible in the latest-five cards */
+.recentEvent{grid-template-columns:54px minmax(0,1fr)!important}
+.recentCategory{
+  display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--quake) 38%,rgba(255,255,255,.08));
+  background:color-mix(in srgb,var(--quakeSoft) 82%,rgba(40,31,25,.42));color:var(--quake);
+  font-size:7px;font-weight:950;letter-spacing:.03em;white-space:nowrap
+}
+.recentSeverity{display:none!important}
+
+/* Two independent catalogue filters */
+.filterLabel{margin:3px 0 5px;font-size:8px;font-weight:950;letter-spacing:.12em;color:#cdbdaf}
+.intensityLabel{margin-top:8px}
+.intensityFilters{display:flex;align-items:center;gap:5px;overflow-x:auto;white-space:nowrap;padding:0 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.intensityFilters::-webkit-scrollbar{display:none}
+.intensityFilters button{
+  flex:0 0 auto;min-height:29px;padding:0 9px;border:1px solid rgba(255,246,233,.11);border-radius:999px;
+  background:rgba(255,248,238,.05);color:#d1c0b1;font-size:7px;font-weight:900;letter-spacing:.02em
+}
+.intensityFilters button.on{color:#2a180e;border-color:transparent;background:linear-gradient(135deg,#ffc27d,#ef8e4e);box-shadow:0 5px 15px rgba(224,126,63,.22)}
+
+/* Much clearer magnitude coding in the full history */
+.event.quakeEvent{border-width:1px;border-left-width:6px!important;background:linear-gradient(100deg,color-mix(in srgb,var(--quakeSoft) 155%,transparent),color-mix(in srgb,var(--quakeSoft) 72%,rgba(54,43,35,.33)) 48%,rgba(59,46,38,.34))!important}
+.event.quakeEvent .quakeMagnitude{filter:drop-shadow(0 0 9px color-mix(in srgb,var(--quake) 25%,transparent))}
+.event.quakeEvent .quakeClass{border-color:color-mix(in srgb,var(--quake) 38%,rgba(255,255,255,.08));background:color-mix(in srgb,var(--quakeSoft) 90%,rgba(42,33,27,.40));color:var(--quake);font-size:7.5px!important;font-weight:950}
+.event.quakeEvent.mag-blue{box-shadow:inset 5px 0 18px rgba(76,137,210,.13),inset 0 1px 0 rgba(255,255,255,.04)}
+.event.quakeEvent.mag-yellow{box-shadow:inset 5px 0 18px rgba(207,175,72,.14),inset 0 1px 0 rgba(255,255,255,.04)}
+.event.quakeEvent.mag-orange{box-shadow:inset 5px 0 18px rgba(225,124,62,.17),inset 0 1px 0 rgba(255,255,255,.04)}
+.event.quakeEvent.mag-red{box-shadow:inset 6px 0 20px rgba(226,75,61,.21),inset 0 1px 0 rgba(255,255,255,.04)}
+.event.quakeEvent.mag-deep{box-shadow:inset 7px 0 24px rgba(201,39,39,.29),0 0 18px rgba(169,35,35,.08),inset 0 1px 0 rgba(255,255,255,.04)}
+
+/* General readability: raise microcopy without making containers larger */
+.title p{font-size:10.5px!important;line-height:1.45!important}
+.eyebrow{font-size:8.5px!important}
+.trend{font-size:10.5px!important}
+.badge,.pill,.sensorMode,.modelFlag{font-size:8px!important}
+.scoreText b{font-size:12px!important}.scoreText span{font-size:10.5px!important}
+.mapSources .sourceChip{font-size:7px!important}.mapSources .updateStamp{font-size:7px!important}
+.recentEventTop b{font-size:12px!important}.recentEventMeta{font-size:8px!important;line-height:1.35!important}
+.statZoneHead small{font-size:9.5px!important}
+.rangeFilters button{font-size:7.8px!important}.rangeSummary{font-size:8.5px!important}
+.quakeTime strong{font-size:11px!important}.quakeTime span{font-size:9px!important}
+.quakeFacts small{font-size:7px!important}.quakeFacts b{font-size:10px!important}
+.metric small,.event small,.scenario small,.forecastZone small,.sensorSub,.communityStats span,.muted{font-size:9.5px!important;line-height:1.4!important}
+.notice{font-size:10px!important;line-height:1.45!important}
+.footer{font-size:9px!important;line-height:1.5!important}
+
+@media(max-width:800px){
+  .feltJumpBtn{min-height:32px;padding:0 9px;font-size:7.8px}
+  .kpi span{font-size:6.8px!important}.kpi strong{font-size:16.5px!important}
+  .recentEventTop b{font-size:11px!important}.recentEventMeta{font-size:7.4px!important}.recentCategory{font-size:6.5px;min-height:17px}
+  .rangeFilters button,.intensityFilters button{font-size:7px!important;min-height:28px}
+  .quakeTitleRow>b{font-size:13px!important}.quakeTime strong{font-size:10px!important}.quakeTime span{font-size:8.5px!important}
+  .quakeFacts small{font-size:6.5px!important}.quakeFacts b{font-size:9px!important}
+  .mapSources .sourceChip{font-size:6.5px!important}.mapSources .updateStamp{font-size:6.4px!important}
+}
+@media(max-width:430px){
+  .sideHeader{gap:8px}.feltJumpBtn{font-size:7.2px;padding:0 8px}
+  .kpi span{font-size:6.2px!important}.kpi strong{font-size:15px!important}
+  .recentEventMeta span:nth-child(4),.recentEventMeta span:nth-child(5){display:none}
+  .filterLabel{font-size:7.4px}.intensityFilters{margin-right:-2px}
+}
