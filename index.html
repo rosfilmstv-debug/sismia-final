@@ -12,12 +12,12 @@
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 <title>SISMIA · Visualizador en tiempo real de terremotos · J.D. Ros</title>
-<link rel="stylesheet" href="/styles.css?v=17-map-spheres">
+<link rel="stylesheet" href="/styles.css?v=18-map-spheres">
 </head>
 <body>
 <div class="app">
   <div class="top"><div class="brand" aria-label="SISMIA - Visualizador en tiempo real de terremotos by J.D. Ros"><span class="brandMain">SISMIA</span><small><span class="brandDescriptor">VISUALIZADOR EN TIEMPO REAL DE TERREMOTOS</span><em class="brandBy">BY J.D. ROS</em></small></div><div class="live"><span class="dot"></span><span id="feedState">CONECTANDO</span></div></div>
-  <div class="nav"><button class="on" data-view="now">AHORA</button><button data-view="map">MAPA</button><button data-view="world">MUNDO</button><button data-view="vibration">VIBRACIÓN</button><button data-view="analysis">ANÁLISIS</button></div>
+  <div class="nav"><button class="on" data-view="now">AHORA</button><button data-view="map">MAPA</button><button data-view="world">MUNDO</button><button data-view="vibration">SISMÓGRAFO</button><button data-view="analysis">ANÁLISIS</button></div>
 
   <main id="now" class="view on">
     <div class="hero">
@@ -80,32 +80,35 @@
     <section class="card pad section"><div class="title"><div><h2>Grandes terremotos recientes</h2><p>Toca uno para dibujar su conexión temporal con Granada y comparar fechas.</p></div><span class="badge" id="worldLiveBadge">USGS · CONECTANDO</span></div><div class="list" id="worldList"></div></section>
   </main>
 
-  <main id="vibration" class="view">
-    <section class="sensorHero">
-      <div class="card sensorScreen">
-        <div class="sensorTop"><div><div class="eyebrow">Sensor del iPhone · tiempo real</div><div class="sensorState" id="sensorState">SENSORES DETENIDOS</div><div class="sensorSub" id="sensorSub">Coloca el iPhone sobre una superficie estable y toca ACTIVAR SENSORES.</div></div><span class="sensorMode" id="sensorMode">SIN DATOS</span></div>
-        <div class="vibeGauge"><i id="vibeGauge"></i></div>
-        <div class="sensorNumbers"><div class="sensorNum"><span>Vibración RMS</span><strong id="vibeRms">0.000</strong></div><div class="sensorNum"><span>Pico</span><strong id="vibePeak">0.000</strong></div><div class="sensorNum"><span>Giro RMS</span><strong id="gyroRms">0.0°</strong></div><div class="sensorNum"><span>Muestreo</span><strong id="sampleHz">0 Hz</strong></div></div>
-        <div class="sensorAlarm section" id="sensorAlarm"><div class="eyebrow">⚠ Vibración elevada detectada</div><div style="font-size:20px;font-weight:950;margin:5px 0" id="sensorAlarmTitle">POSIBLE TEMBLOR</div><div class="sensorSub" id="sensorAlarmText">Se ha detectado movimiento repetido con el teléfono aparentemente apoyado. Comprueba fuentes oficiales.</div></div>
-        <div class="notice cyan section"><b>Importante:</b> el teléfono no es un sismógrafo certificado. Una mesa, tráfico, electrodomésticos, golpes o tocar el móvil pueden generar señales. Esta pestaña detecta vibración local y nunca confirma por sí sola un terremoto.</div>
-      </div>
-      <aside class="card pad sensorCtl">
-        <div class="title"><div><h2>Monitor de vibraciones</h2><p>Acelerómetro + giroscopio · tres ejes.</p></div><span class="badge"><i class="recordDot" id="recordDot"></i><span id="recordText">OFF</span></span></div>
-        <button class="btn primary" id="startSensors">ACTIVAR SENSORES</button>
-        <button class="btn" id="calibrateSensor">CALIBRAR 3 s</button>
-        <button class="btn" id="wakeSensor">MANTENER PANTALLA ACTIVA</button>
-        <div class="sensorStatusBox"><span>Umbral dinámico</span><strong id="sensorThreshold">0.150 m/s²</strong><small class="muted" id="baselineText">Ruido base: sin calibrar</small></div>
-        <div class="rangeRow"><span>Sensibilidad</span><input id="sensorSensitivity" type="range" min="1" max="3" step="1" value="2"><b id="sensitivityLabel">MEDIA</b></div>
-        <div class="sensorStatusBox"><span>Verificación red SISMIA</span><strong id="networkVerify">SIN COMPROBAR</strong><small class="muted" id="networkVerifyText">Si salta una alerta local, SISMIA actualizará EMSC/USGS para buscar contexto.</small></div>
-      </aside>
-    </section>
-    <section class="card pad section"><div class="title"><div><h2>Aceleración lineal · XYZ</h2><p>m/s² · últimos segundos. Se elimina gravedad cuando el navegador no ofrece aceleración lineal.</p></div><span class="badge" id="accBadge">EN ESPERA</span></div><canvas id="accChart" class="motionChart"></canvas><div class="legend3"><span><i class="lx"></i>X</span><span><i class="ly"></i>Y</span><span><i class="lz"></i>Z</span></div></section>
-    <section class="card pad section"><div class="title"><div><h2>Giroscopio · XYZ</h2><p>Velocidad angular en grados/s. Ayuda a distinguir vibración de coger o girar el teléfono.</p></div><span class="badge" id="gyroBadge">EN ESPERA</span></div><canvas id="gyroChart" class="motionChart"></canvas><div class="legend3"><span><i class="lx"></i>X</span><span><i class="ly"></i>Y</span><span><i class="lz"></i>Z</span></div></section>
-    <section class="card pad section"><div class="title"><div><h2>Cómo interpreta SISMIA la señal</h2><p>Filtro local para reducir falsos positivos.</p></div></div><div class="grid3"><div class="metric"><span>Teléfono estable</span><strong id="stablePct">—</strong><small>Rotación baja durante la ventana</small></div><div class="metric"><span>Persistencia</span><strong id="persistMs">0 ms</strong><small>Tiempo sobre el umbral</small></div><div class="metric"><span>Nivel vibración</span><strong id="vibeScore">0/100</strong><small>No es probabilidad sísmica</small></div></div><div class="notice section" id="sensorExplanation">Para medir mejor: deja el iPhone inmóvil sobre una superficie rígida. Si lo sostienes con la mano, el sistema marcará MOVIMIENTO DEL TELÉFONO y evitará interpretarlo como posible vibración ambiental.</div></section>
-    <section class="grid2 section"><div class="card pad"><div class="title"><div><h2>Red SISMIA de sensores</h2><p>Coincidencias de vibración enviadas por dispositivos SISMIA, sin posición precisa.</p></div><span class="badge" id="sensorNetBadge">RED</span></div><div class="grid3"><div class="metric"><span>Últimos 10 min</span><strong id="sensorNet10">—</strong><small>dispositivos</small></div><div class="metric"><span>Última hora</span><strong id="sensorNet60">—</strong><small>dispositivos</small></div><div class="metric"><span>Confianza red</span><strong id="sensorNetConfidence">—</strong><small>no confirma terremoto</small></div></div><div class="notice cyan section" id="sensorNetText">Una sola detección puede ser ruido local. Varias detecciones independientes aumentan el interés, pero requieren contraste con redes oficiales.</div></div><div class="card pad"><div class="title"><div><h2>Modo noche</h2><p>Pantalla mínima y registro de picos mientras la PWA siga activa.</p></div><span class="badge">EXPERIMENTAL</span></div><div class="btns"><button class="btn primary" id="nightModeBtn">ACTIVAR MODO NOCHE</button><button class="btn" id="clearNightLog">BORRAR REGISTRO</button></div><div class="nightLog section" id="nightLog"><div>Sin picos registrados todavía.</div></div></div></section>
-  </main>
+  
+<main id="vibration" class="view">
+  <section class="seismoHero card">
+    <div class="seismoTop">
+      <div><div class="eyebrow">Sensor del iPhone</div><h2>DETECTOR SISMÓGRAFO</h2><p>Visualización en tiempo real del movimiento detectado por el teléfono.</p></div>
+      <div class="seismoState" id="seismoState"><span></span><b>EN ESPERA</b></div>
+    </div>
+    <div class="seismoChartWrap"><canvas id="seismoCanvas"></canvas><div class="seismoZero"></div></div>
+    <div class="seismoMetrics">
+      <div><small>NIVEL</small><strong id="seismoLevel">—</strong></div>
+      <div><small>PICO</small><strong id="seismoPeak">—</strong></div>
+      <div><small>DURACIÓN</small><strong id="seismoDuration">0.0 s</strong></div>
+      <div><small>ESTADO</small><strong id="seismoLabel">LISTO</strong></div>
+    </div>
+    <div class="seismoActions"><button class="btn primary" id="seismoStart">INICIAR MEDICIÓN</button><button class="btn" id="seismoAlarm">ALARMA: ON</button></div>
+    <p class="seismoNote">El teléfono no es un sismómetro certificado. Golpes, caminar, vehículos o mover la superficie pueden producir señales similares. Esta función no sustituye a la Red Sísmica Nacional.</p>
+  </section>
 
-  <main id="analysis" class="view analysisUnified">
+  <section class="underGranada">
+    <div class="sectionIntro"><div><div class="eyebrow">Contexto geológico</div><h2>BAJO GRANADA</h2></div><p>Cartografía visual basada en IGN e IGME/QAFI. No es una predicción de dónde ocurrirá el próximo terremoto.</p></div>
+    <div class="geoGrid">
+      <article class="geoCard card"><div class="geoHead"><div><small>01 · TECTÓNICA</small><h3>Fallas activas · Cuenca de Granada</h3></div><span>IGN · QAFI</span></div><div class="geoMap" id="faultMap"></div><p>La cuenca está limitada y atravesada por sistemas de fallas activas cuaternarias. Las líneas son una visualización esquemática de contexto, no geometría parcelaria.</p></article>
+      <article class="geoCard card"><div class="geoHead"><div><small>02 · TERRENO</small><h3>Amplificación sísmica del terreno</h3></div><span>IGME</span></div><div class="geoMap geoAmplification" id="groundMap"></div><p>Los materiales superficiales pueden modificar la intensidad del movimiento que llega a superficie. Mayor amplificación no significa mayor probabilidad de que nazca allí un terremoto.</p></article>
+      <article class="geoCard card"><div class="geoHead"><div><small>03 · ESTRUCTURA</small><h3>Cuenca sedimentaria y bordes</h3></div><span>IGN · IGME</span></div><div class="geoMap geoBasin" id="basinMap"></div><p>La Cuenca de Granada contiene una potente cobertura sedimentaria y está enmarcada por estructuras activas de las Béticas.</p></article>
+      <article class="geoCard card"><div class="geoHead"><div><small>04 · REGIONAL</small><h3>Granada dentro de las Béticas</h3></div><span>IGN</span></div><div class="geoMap geoRegional" id="regionalMap"></div><p>Una vista simplificada para situar la sismicidad granadina dentro del contexto tectónico Bético-Balear.</p></article>
+    </div>
+  </section>
+</main>
+<main id="analysis" class="view analysisUnified">
     <section class="card pad analysisBlock analysisOverview">
       <div class="title"><div><h2>Situación actual</h2><p>Lectura automática de la actividad sísmica reciente en Granada.</p></div><span class="badge" id="analysisState">ACTUALIZANDO</span></div>
       <div class="analysisHero">
@@ -154,8 +157,9 @@
   <div class="footer">SISMIA V9 es una herramienta experimental de visualización, backtesting y forecasting estadístico. No puede predecir de forma fiable la hora, el lugar y la magnitud de un terremoto. Los “screenings” mundiales representan coincidencia/compatibilidad física para vigilancia, no causalidad demostrada. Para decisiones de seguridad, prioriza siempre IGN, Protección Civil y alertas oficiales.</div>
 </div>
 <div id="toast" class="toast"><b id="toastT"></b><p id="toastP"></p></div>
-<script src="/app-1.js?v=17-map-spheres"></script>
+<script src="/app-1.js?v=18-map-spheres"></script>
 <script src="/app-2.js?v=16-map-spheres"></script>
 <script src="/app-3.js?v=15-map-rebuild"></script>
+<script src="/app-seismograph.js?v=18"></script>
 </body>
 </html>
