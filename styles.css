@@ -1056,3 +1056,151 @@ body{
   .recentEventMeta span:nth-child(4),.recentEventMeta span:nth-child(5){display:none}
   .filterLabel{font-size:7.4px}.intensityFilters{margin-right:-2px}
 }
+
+/* =========================================================
+   SISMIA V9 · UI CHANGE 06 — white ambient background
+   White/ivory canvas + softly animated seismic-wave texture.
+   UI logic and component dimensions remain unchanged.
+   ========================================================= */
+:root{
+  --bg:#f6f2ec;
+  --text:#fffaf4;
+  --muted:#cfbeb0;
+}
+html,body{
+  background:#f7f4ef!important;
+  min-height:100%;
+}
+body{
+  position:relative;
+  isolation:isolate;
+  overflow-x:hidden;
+  background:
+    radial-gradient(1000px 560px at 12% -8%,rgba(232,174,119,.10),transparent 66%),
+    radial-gradient(920px 620px at 92% 20%,rgba(158,170,136,.075),transparent 66%),
+    linear-gradient(180deg,#fbfaf8 0%,#f5f1eb 52%,#faf8f5 100%)!important;
+  background-attachment:fixed!important;
+}
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  inset:-18vh -18vw;
+  pointer-events:none;
+  z-index:0;
+  transform:translate3d(0,0,0);
+  will-change:transform,opacity;
+}
+body::before{
+  opacity:.26;
+  filter:blur(14px);
+  background:
+    repeating-radial-gradient(ellipse at 18% 28%,transparent 0 44px,rgba(194,128,78,.11) 45px 47px,transparent 48px 83px),
+    repeating-radial-gradient(ellipse at 82% 62%,transparent 0 58px,rgba(113,137,111,.085) 59px 61px,transparent 62px 103px);
+  animation:sismiaWaveDrift 22s ease-in-out infinite alternate;
+}
+body::after{
+  opacity:.18;
+  filter:blur(24px);
+  background:
+    radial-gradient(ellipse at 34% 84%,transparent 0 120px,rgba(221,151,95,.11) 122px 126px,transparent 128px 210px),
+    radial-gradient(ellipse at 70% 8%,transparent 0 145px,rgba(166,143,122,.09) 147px 151px,transparent 153px 245px);
+  animation:sismiaWaveFloat 30s ease-in-out infinite alternate-reverse;
+}
+@keyframes sismiaWaveDrift{
+  0%{transform:translate3d(-1.5%,-1%,0) scale(1)}
+  50%{transform:translate3d(1.5%,1.2%,0) scale(1.025)}
+  100%{transform:translate3d(2.5%,-.5%,0) scale(1.045)}
+}
+@keyframes sismiaWaveFloat{
+  0%{transform:translate3d(1%,1.5%,0) scale(1.02)}
+  100%{transform:translate3d(-2%,-1%,0) scale(1.07)}
+}
+.app{position:relative;z-index:1;background:transparent!important}
+
+/* Header must read clearly on the new white canvas */
+.top{color:#3d3028!important}
+.brand{color:#3d3028!important;text-shadow:none!important}
+.brand small{color:#8a7667!important}
+.live{
+  color:#725f50!important;
+  background:rgba(255,255,255,.64)!important;
+  border-color:rgba(90,70,55,.12)!important;
+  box-shadow:0 8px 24px rgba(87,65,50,.08)!important;
+  backdrop-filter:blur(18px) saturate(120%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(120%)!important;
+}
+
+/* Brown glass remains, but lighter and more translucent so white is visible around it */
+.card,.alert,.serverBox{
+  background:
+    radial-gradient(520px 250px at 2% 0%,rgba(255,210,166,.13),transparent 64%),
+    linear-gradient(145deg,rgba(108,84,68,.79),rgba(77,61,51,.76))!important;
+  border-color:rgba(91,68,52,.12)!important;
+  box-shadow:0 18px 42px rgba(82,59,43,.12),inset 0 1px 0 rgba(255,255,255,.16)!important;
+  backdrop-filter:blur(25px) saturate(112%)!important;
+  -webkit-backdrop-filter:blur(25px) saturate(112%)!important;
+}
+.side{
+  background:
+    radial-gradient(390px 270px at 96% 0%,rgba(255,179,104,.20),transparent 65%),
+    linear-gradient(150deg,rgba(111,86,69,.84),rgba(78,62,52,.80))!important;
+}
+.correlation,.sensorScreen,.alert{
+  background:
+    radial-gradient(410px 245px at 92% 0%,rgba(238,157,95,.18),transparent 65%),
+    linear-gradient(150deg,rgba(103,78,63,.84),rgba(70,57,49,.82))!important;
+}
+
+/* Lighter brown glass subcards */
+.kpi,.metric,.sensorNum,.sensorStatusBox,.changeItem,.scenario,.dnaCell,.quality,.remoteStat,.timeBox,.communityStats div,
+.details,.event,.recentEvent,.forecastZone{
+  border-color:rgba(255,248,239,.16)!important;
+}
+
+/* Clear AI / non-official interpretation inside the score module */
+.scoreText{display:grid;gap:6px;align-content:center;min-width:0}
+.scoreText>b{display:block;margin:0!important}
+.scoreContext{
+  display:block;
+  font-size:11px!important;
+  line-height:1.4!important;
+  color:#fff5eb!important;
+  font-weight:650;
+}
+.aiRiskNote{
+  display:block;
+  margin-top:2px;
+  padding-top:7px;
+  border-top:1px solid rgba(255,246,235,.14);
+  font-size:9.2px!important;
+  line-height:1.45!important;
+  color:#ead8c8!important;
+  font-weight:560;
+}
+.scoreWhyHidden{display:none!important}
+
+/* Footer on white background */
+.footer{
+  color:#766458!important;
+  background:rgba(255,255,255,.52);
+  border:1px solid rgba(91,68,52,.08);
+  border-radius:16px;
+  padding:10px 12px;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+@media(max-width:800px){
+  body::before{opacity:.20;filter:blur(18px)}
+  body::after{opacity:.13;filter:blur(28px)}
+  .scoreContext{font-size:10.2px!important}
+  .aiRiskNote{font-size:8.6px!important;line-height:1.4!important}
+}
+@media(max-width:430px){
+  .scoreContext{font-size:9.7px!important}
+  .aiRiskNote{font-size:8.2px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before,body::after{animation:none!important}
+}
