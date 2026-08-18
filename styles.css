@@ -1619,3 +1619,84 @@ body::after{
 .analysisUnified{max-width:980px;margin:0 auto}.analysisBlock{overflow:visible!important}.analysisHero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.analysisScore{--score:0;width:118px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;align-content:center;position:relative;background:conic-gradient(#ff8448 calc(var(--score)*1%),#ffbd78 0 72%,rgba(255,255,255,.12) 0);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 15px 36px rgba(0,0,0,.25),0 0 30px rgba(255,134,70,.16)}.analysisScore:after{content:"";position:absolute;inset:10px;border-radius:50%;background:rgba(16,17,19,.92);border:1px solid rgba(255,255,255,.1)}.analysisScore strong,.analysisScore small{position:relative;z-index:1}.analysisScore strong{font-size:36px;line-height:.9}.analysisScore small{font-size:9px;color:#bfc4ca;margin-top:4px}.analysisStatusCopy .alertState{font-size:22px!important;font-weight:950;margin:0 0 7px}.analysisStatusCopy p{font-size:12px;line-height:1.5;color:#e0e3e7;margin:0 0 5px}.analysisStatusCopy small{font-size:9px;color:#9fa5ad}.analysisStats{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:16px}.analysisStats>div{padding:11px;border-radius:14px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09)}.analysisStats span{display:block;font-size:7px;color:#9fa5ad;text-transform:uppercase;letter-spacing:.08em}.analysisStats strong{display:block;font-size:16px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.analysisChart{height:190px!important}.plainExplanation{margin-top:8px;padding:11px 13px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-size:11px;line-height:1.55;color:#d7dbe0}.analysisDoubleChart{display:grid;grid-template-columns:1fr 1fr;gap:18px}.analysisDoubleChart h3{font-size:10px;color:#b7bdc4;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px}.analysisComponents .comp{grid-template-columns:150px 1fr 36px}.analysisQuality{margin-top:14px;grid-template-columns:repeat(4,1fr)}.analysisConclusionBlock{border-color:rgba(255,157,77,.24)!important}.simpleConclusion{font-size:13px!important;line-height:1.65!important}.simpleConclusion small{color:#aab0b7}.analysisNotify{border-top:1px solid rgba(255,255,255,.09);margin-top:15px;padding-top:13px}.serverMini{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}.serverMini span{font-size:8px;color:#aab0b7}.serverMini b{color:#f1f2f4}.serverCompact{display:inline-flex;align-items:center;gap:5px;font-size:8px;color:#adb3ba}.serverNoteHidden{display:none!important}
 
 @media(max-width:800px){.fullMapPage.on{top:var(--sismia-map-top,116px)}.fullMapHud{top:8px;left:8px;right:8px}.fullMapHud>div{padding:7px 9px}.fullMapHud .btn{padding:9px 10px;font-size:8px}.fullMapLegend{left:8px;bottom:10px;max-width:calc(100% - 16px);overflow:auto}.mapEventPanel{top:68px!important;right:8px!important;width:min(260px,calc(100% - 16px))!important;padding:13px!important}.analysisHero{grid-template-columns:104px 1fr;gap:12px}.analysisScore{width:104px}.analysisScore strong{font-size:31px}.analysisStatusCopy .alertState{font-size:17px!important}.analysisStats{grid-template-columns:repeat(3,1fr)}.analysisStats>div{padding:9px}.analysisStats strong{font-size:14px}.analysisDoubleChart{grid-template-columns:1fr;gap:14px}.analysisComponents .comp{grid-template-columns:105px 1fr 30px;font-size:8px}.analysisQuality{grid-template-columns:1fr 1fr}.simpleConclusion{font-size:12px!important}}
+
+
+/* === SISMIA V9 CHANGE 13 · SIMPLE QUAKE HALOS + SATELLITE TOGGLE === */
+
+/* The local map now uses only one solid point + one soft halo per event.
+   No merged heatmap layer is used. */
+#localMap .maplibregl-canvas,
+#fullLocalMap .maplibregl-canvas{
+  filter:none!important;
+  -webkit-filter:none!important;
+}
+
+/* Satellite / map toggle: grouped with native MapLibre controls. */
+.sismiaSatelliteCtrl{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  margin-bottom:7px!important;
+}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn{
+  width:auto!important;
+  min-width:84px!important;
+  height:34px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:0 10px!important;
+  border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.20)!important;
+  background:rgba(10,11,13,.88)!important;
+  color:#fff!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.34)!important;
+  backdrop-filter:blur(14px) saturate(115%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(115%)!important;
+  filter:none!important;
+}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn span{
+  font-size:13px!important;
+  line-height:1!important;
+  color:#ff9a43!important;
+}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn b{
+  font-size:7.5px!important;
+  line-height:1!important;
+  letter-spacing:.075em!important;
+  font-weight:900!important;
+}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn.on{
+  background:rgba(255,255,255,.92)!important;
+  color:#101114!important;
+  border-color:#fff!important;
+}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn.on span{color:#ff7e32!important}
+
+/* Magnitude legend matches the simple map colours. */
+.fullMapLegend .q1{background:#2f9cff!important;color:#fff!important}
+.fullMapLegend .q2{background:#ffd45a!important;color:#181511!important}
+.fullMapLegend .q3{background:#ff9a43!important;color:#18110c!important}
+.fullMapLegend .q4{background:#ff5148!important;color:#fff!important}
+.fullMapLegend .q5{background:#e92336!important;color:#fff!important}
+
+/* Selected-event card colour follows the same family. */
+.mapEventPanel.mag-blue{--eventTone:#2f9cff!important}
+.mapEventPanel.mag-yellow{--eventTone:#ffd45a!important}
+.mapEventPanel.mag-orange{--eventTone:#ff9a43!important}
+.mapEventPanel.mag-red{--eventTone:#ff5148!important}
+.mapEventPanel.mag-deep{--eventTone:#e92336!important}
+.mapEventPanel .mapEventKicker,
+.mapEventPanel .mapEventHeadline>strong{color:var(--eventTone)!important}
+
+@media(max-width:800px){
+  .sismiaSatelliteCtrl .sismiaSatelliteBtn{
+    min-width:76px!important;
+    height:31px!important;
+    padding:0 8px!important;
+    border-radius:11px!important;
+  }
+  .sismiaSatelliteCtrl .sismiaSatelliteBtn b{font-size:7px!important}
+}
