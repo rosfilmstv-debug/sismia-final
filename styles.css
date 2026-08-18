@@ -1204,3 +1204,44 @@ body::after{
 @media(prefers-reduced-motion:reduce){
   body::before,body::after{animation:none!important}
 }
+
+/* =========================================================
+   CHANGE 07 — FIX REAL MAGNITUDE COLOURS IN SEISMIC HISTORY
+   The base .event.quakeEvent rule has higher specificity than
+   .mag-*; these selectors intentionally override it.
+   ========================================================= */
+.event.quakeEvent.mag-blue{
+  --quake:#62aaff!important;
+  --quakeSoft:rgba(68,132,214,.18)!important;
+}
+.event.quakeEvent.mag-yellow{
+  --quake:#e7c84f!important;
+  --quakeSoft:rgba(190,153,43,.20)!important;
+}
+.event.quakeEvent.mag-orange{
+  --quake:#ff9852!important;
+  --quakeSoft:rgba(213,105,45,.22)!important;
+}
+.event.quakeEvent.mag-red{
+  --quake:#ff6153!important;
+  --quakeSoft:rgba(205,67,52,.24)!important;
+}
+.event.quakeEvent.mag-deep{
+  --quake:#d92f3d!important;
+  --quakeSoft:rgba(164,34,45,.30)!important;
+}
+
+/* Make the full card hue unmistakable, not only the left border */
+.event.quakeEvent.mag-blue{background:linear-gradient(100deg,rgba(68,132,214,.22),rgba(111,86,69,.38) 52%,rgba(77,61,51,.30))!important}
+.event.quakeEvent.mag-yellow{background:linear-gradient(100deg,rgba(190,153,43,.23),rgba(111,86,69,.39) 52%,rgba(77,61,51,.30))!important}
+.event.quakeEvent.mag-orange{background:linear-gradient(100deg,rgba(213,105,45,.25),rgba(111,86,69,.40) 52%,rgba(77,61,51,.30))!important}
+.event.quakeEvent.mag-red{background:linear-gradient(100deg,rgba(205,67,52,.28),rgba(106,77,62,.42) 52%,rgba(77,61,51,.31))!important}
+.event.quakeEvent.mag-deep{background:linear-gradient(100deg,rgba(164,34,45,.34),rgba(99,68,57,.45) 52%,rgba(71,54,48,.34))!important}
+
+/* Category badge and magnitude always inherit the correct magnitude colour */
+.event.quakeEvent .quakeMagnitude,
+.event.quakeEvent .quakeClass{color:var(--quake)!important}
+.event.quakeEvent .quakeClass{
+  border-color:color-mix(in srgb,var(--quake) 58%,rgba(255,255,255,.10))!important;
+  background:color-mix(in srgb,var(--quakeSoft) 92%,rgba(54,43,35,.48))!important;
+}
