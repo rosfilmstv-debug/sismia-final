@@ -1734,3 +1734,54 @@ body::after{
 @media(max-width:800px){
   .mapEventPanel{left:10px!important;right:auto!important;bottom:55px!important;top:auto!important;width:calc(100% - 20px)!important;max-width:none!important;padding:12px!important}
 }
+
+
+/* === SISMIA V15 · MAPA RECONSTRUIDO DESDE BASE V5 === */
+#localMap,#fullLocalMap{background:#050608!important;filter:none!important;-webkit-filter:none!important}
+#localMap:after{display:none!important}
+#localMap .maplibregl-canvas,#fullLocalMap .maplibregl-canvas{filter:none!important;-webkit-filter:none!important;opacity:1!important}
+.mapWrap,.fullMapShell{position:relative!important}
+.maplibregl-canvas-container,.maplibregl-canvas{outline:none!important}
+
+/* Una única ficha fija abajo a la izquierda. */
+.mapEventPanel{
+  --eventTone:#ff922e;
+  position:absolute!important;z-index:60!important;
+  top:auto!important;right:auto!important;left:14px!important;bottom:58px!important;
+  width:min(322px,calc(100% - 28px))!important;max-width:322px!important;
+  padding:14px!important;border-radius:18px!important;
+  background:rgba(9,11,14,.94)!important;border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.48)!important;
+  backdrop-filter:blur(18px) saturate(115%)!important;-webkit-backdrop-filter:blur(18px) saturate(115%)!important;
+  color:#fff!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+  transform:translateY(7px)!important;transition:opacity .16s ease,transform .16s ease!important
+}
+.mapEventPanel.on{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:none!important}
+.mapEventPanel.mag-blue{--eventTone:#2f9cff!important}.mapEventPanel.mag-yellow{--eventTone:#ffd84d!important}.mapEventPanel.mag-orange{--eventTone:#ff922e!important}.mapEventPanel.mag-red{--eventTone:#ff4b3e!important}.mapEventPanel.mag-deep{--eventTone:#d91932!important}
+.mapEventKicker{color:var(--eventTone)!important;font-size:8px!important;font-weight:900!important;letter-spacing:.12em!important;text-transform:uppercase!important;padding-right:38px!important}
+.mapEventHeadline{display:flex!important;align-items:center!important;gap:10px!important;margin:5px 0 11px!important;padding-right:34px!important}
+.mapEventHeadline>strong{font-size:31px!important;line-height:.95!important;letter-spacing:-.04em!important;color:var(--eventTone)!important}
+.mapEventHeadline b{display:block!important;font-size:12px!important;color:#fff!important}.mapEventHeadline span{display:block!important;margin-top:3px!important;font-size:9px!important;color:#b8bec6!important}
+.mapEventFacts{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:6px!important;margin-top:8px!important}
+.mapEventFacts span{min-width:0!important;padding:7px 8px!important;border-radius:11px!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.08)!important}
+.mapEventFacts small{display:block!important;font-size:7px!important;color:#9299a2!important;text-transform:uppercase!important}.mapEventFacts b{display:block!important;margin-top:2px!important;font-size:9px!important;color:#f2f4f6!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.mapEventClose{position:absolute!important;right:9px!important;top:8px!important;width:31px!important;height:31px!important;border-radius:50%!important;background:rgba(12,14,17,.92)!important;color:#fff!important;border:2px solid rgba(255,255,255,.88)!important;font-size:22px!important;line-height:25px!important;font-weight:800!important;display:grid!important;place-items:center!important;padding:0!important;z-index:3!important}
+.mapEventClose:active{background:#fff!important;color:#090b0e!important}
+
+/* El botón satélite queda separado de los controles de zoom y siempre clicable. */
+.sismiaSatelliteCtrl{margin-bottom:5px!important}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;min-width:82px!important;height:34px!important;padding:0 9px!important;color:#fff!important;background:rgba(10,12,15,.92)!important;border:0!important;cursor:pointer!important}
+.sismiaSatelliteCtrl .sismiaSatelliteBtn span{font-size:12px!important;color:#ff9b4a!important}.sismiaSatelliteCtrl .sismiaSatelliteBtn b{font-size:7.5px!important;letter-spacing:.07em!important}.sismiaSatelliteCtrl .sismiaSatelliteBtn.on{background:rgba(255,139,61,.94)!important;color:#111!important}.sismiaSatelliteCtrl .sismiaSatelliteBtn.on span{color:#111!important}
+
+/* Último evento: visible pero sin ondas ni animaciones que interfieran con el mapa. */
+.latest-seismo-marker{appearance:none!important;border:0!important;background:transparent!important;display:flex!important;align-items:flex-end!important;gap:5px!important;cursor:pointer!important;filter:drop-shadow(0 7px 18px rgba(0,0,0,.62))!important}
+.latest-seismo-marker .latest-pin{width:14px!important;height:14px!important;border-radius:50%!important;background:#ff922e!important;border:3px solid #fff!important;box-shadow:0 0 0 4px rgba(255,146,46,.18),0 0 18px rgba(255,146,46,.42)!important}
+.latest-seismo-marker .latest-card{display:block!important;text-align:left!important;background:rgba(9,10,12,.90)!important;border:1px solid rgba(255,255,255,.15)!important;border-radius:11px!important;padding:6px 8px!important;min-width:96px!important;max-width:145px!important;backdrop-filter:blur(12px)!important}
+.latest-seismo-marker .latest-card em{display:block!important;font-style:normal!important;color:#ff9f51!important;font-size:6px!important;font-weight:950!important;letter-spacing:.1em!important}.latest-seismo-marker .latest-card strong{display:block!important;color:#fff!important;font-size:12px!important;line-height:1.1!important}.latest-seismo-marker .latest-card strong i{font-style:normal!important;color:#ffb06c!important;font-size:9px!important}.latest-seismo-marker .latest-card small{display:block!important;color:#b8bec6!important;font-size:7.5px!important;margin-top:2px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+
+@media(max-width:800px){
+  .mapEventPanel{left:10px!important;bottom:54px!important;width:calc(100% - 20px)!important;max-width:none!important;padding:12px!important}
+  .mapEventHeadline>strong{font-size:28px!important}.mapEventHeadline b{font-size:11px!important}.mapEventHeadline span{font-size:8.5px!important}
+  .mapEventFacts b{font-size:8.5px!important}
+  .sismiaSatelliteCtrl .sismiaSatelliteBtn{min-width:76px!important;height:31px!important;padding:0 8px!important}
+}
