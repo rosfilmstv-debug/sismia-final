@@ -1,0 +1,60 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/sismia.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/earthquakes",
+      "destination": "/api/sismia?action=earthquakes"
+    },
+    {
+      "source": "/api/history",
+      "destination": "/api/sismia?action=history"
+    },
+    {
+      "source": "/api/felt",
+      "destination": "/api/sismia?action=felt"
+    },
+    {
+      "source": "/api/sensor-network",
+      "destination": "/api/sismia?action=sensor"
+    },
+    {
+      "source": "/api/push-subscribe",
+      "destination": "/api/sismia?action=push"
+    },
+    {
+      "source": "/api/monitor",
+      "destination": "/api/sismia?action=monitor"
+    }
+  ]
+}

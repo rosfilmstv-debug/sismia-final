@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06080c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SISMIA">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon.svg">
+<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<title>SISMIA V9 · Granada</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="top"><div class="brand">SISMIA<small>OBSERVATORIO SÍSMICO · GRANADA</small></div><div class="live"><span class="dot"></span><span id="feedState">CONECTANDO</span></div></div>
+  <div class="nav"><button class="on" data-view="now">AHORA</button><button data-view="world">MUNDO</button><button data-view="vibration">VIBRACIÓN</button><button data-view="analysis">ANÁLISIS</button><button data-view="alerts">ALERTAS</button></div>
+
+  <main id="now" class="view on">
+    <div class="hero">
+      <section class="card mapWrap">
+        <div class="mapHead"><div class="glass"><b>CUENCA DE GRANADA</b><span>toca cualquier círculo</span></div><div class="glass"><b id="localCountMap">— eventos</b><span>últimas 72 h</span></div></div>
+        <div id="localMap" class="realmap"></div>
+        <div id="waveHud" class="waveHud"><div><b id="waveTitle">PROPAGACIÓN P/S</b><span id="waveText">Selecciona un evento para visualizar la propagación.</span><div class="waveLegend"><span class="waveP">● onda P</span><span class="waveS">● onda S</span></div></div><button class="btn" id="replayWave">REPLAY ONDAS</button></div>
+      </section>
+      <aside class="card side">
+        <div class="eyebrow">Estado sísmico local</div><div class="status" id="status">CALCULANDO</div><div class="trend" id="trend">Esperando datos…</div>
+        <div class="scoreRow"><div id="score" class="score" style="--score:0"><strong id="scoreN">0</strong></div><div class="scoreText"><b>SISMIA ALERT SCORE</b><br><span id="scoreWhy">Anomalía 0–100. No es probabilidad certificada de terremoto.</span></div></div>
+        <div class="kpis"><div class="kpi"><span>72 h</span><strong id="k72">—</strong></div><div class="kpi"><span>6 h</span><strong id="k6">—</strong></div><div class="kpi"><span>Máxima</span><strong id="kmax">—</strong></div><div class="kpi"><span>Prof. mediana</span><strong id="kdepth">—</strong></div></div>
+        <div class="section"><div class="eyebrow">Forecast experimental · 24 h</div><div class="bars" style="margin-top:9px"><div class="barline"><span>M≥1,5</span><div class="track"><div id="p15bar" class="fill" style="width:0"></div></div><b id="p15">—</b></div><div class="barline"><span>M≥3</span><div class="track"><div id="p3bar" class="fill" style="width:0"></div></div><b id="p3">—</b></div><div class="barline"><span>M≥4</span><div class="track"><div id="p4bar" class="fill" style="width:0"></div></div><b id="p4">—</b></div></div></div>
+        <button class="btn primary" id="refresh">ACTUALIZAR AHORA</button>
+      </aside>
+    </div>
+
+    <section class="card pad section sourcePanel">
+      <div><div class="eyebrow">Fuentes en Internet</div><div class="sourceMeta" style="margin-top:7px"><span class="sourceChip" id="localSourceChip"><i></i><b>EMSC</b><span id="localSourceText">conectando</span></span><span class="sourceChip" id="worldSourceChip"><i></i><b>USGS</b><span id="worldSourceText">conectando</span></span></div></div>
+      <div style="text-align:right"><div class="updateStamp" id="lastUpdate">Sin actualizar</div></div>
+    </section>
+
+    <section class="commandStrip section">
+      <div class="card pad"><div class="title"><div><h2>Qué ha cambiado desde tu última visita</h2><p>Comparativa con el estado guardado al cerrar SISMIA.</p></div><span class="badge" id="changeBadge">NUEVO</span></div><div id="changeGrid" class="changeGrid"><div class="notice cyan">La primera comparación aparecerá después de cerrar y volver a abrir la app.</div></div></div>
+      <div class="card pad"><div class="title"><div><h2>Escenarios próximos</h2><p>Pesos relativos experimentales, no probabilidades calibradas.</p></div></div><div id="scenarioGrid" class="scenarioGrid"></div></div>
+    </section>
+
+    <section class="card pad section">
+      <div class="title"><div><h2>Zona estadística de mayor actividad esperada</h2><p>Calculada con los eventos recientes; no identifica una falla que “vaya a romper”.</p></div><span class="badge" id="forecastBadge">CALCULANDO</span></div>
+      <div class="grid2"><div class="forecastZone"><span class="eyebrow">Centro de densidad reciente</span><strong id="forecastPlace">—</strong><small id="forecastText">Esperando suficientes eventos.</small></div><div class="forecastZone"><span class="eyebrow">Ventana temporal</span><strong id="forecastTime">—</strong><small id="forecastTimeText">Basada en la tasa observada de los últimos 2–3 días.</small></div></div>
+      <div class="divider"></div><div class="title"><div><h2>Heatmap prospectivo</h2><p>Proyección visual del cluster si continúa la migración reciente.</p></div><span class="badge" id="horizonBadge">0–3 H</span></div><div class="horizonBtns" id="horizonBtns"><button class="on" data-h="3">0–3 h</button><button data-h="6">3–6 h</button><button data-h="12">6–12 h</button><button data-h="24">12–24 h</button></div><div class="forecastLabel">La proyección no predice un epicentro: desplaza y ensancha la densidad reciente según la migración observada.</div>
+    </section>
+
+    <section class="card pad section">
+      <details class="details" open><summary id="allLocalSummary">Terremotos recientes</summary><div class="list" id="localList"></div></details>
+    </section>
+    <section class="card pad section"><div class="title"><div><h2>¿Lo has sentido?</h2><p>Reporte ciudadano anónimo y aproximado. No sustituye un informe oficial.</p></div><span class="badge">RED SISMIA</span></div><div class="feltBtns"><button data-felt="0">NO</button><button data-felt="1">LEVE</button><button data-felt="2">CLARO</button><button data-felt="3">FUERTE</button></div><div class="communityStats" id="communityStats"><div><b>—</b><span>sin sentir</span></div><div><b>—</b><span>leve</span></div><div><b>—</b><span>claro</span></div><div><b>—</b><span>fuerte</span></div></div><div class="notice cyan section" id="communityNote">Consultando reportes SISMIA de las últimas 24 h…</div></section>
+  </main>
+
+  <main id="world" class="view">
+    <section class="card pad sourcePanel" style="margin-bottom:10px">
+      <div><div class="eyebrow">Datos mundiales en Internet</div><div class="updateStamp" id="worldUpdateStamp" style="margin-top:6px">Esperando primera sincronización…</div></div>
+      <button class="btn primary" id="refreshWorld">↻ ACTUALIZAR MUNDO + GRANADA</button>
+    </section>
+    <div class="worldHero">
+      <section class="card mapWrap"><div class="mapHead"><div class="glass"><b>ACTIVIDAD MUNDIAL</b><span>M≥5,5 · 7 días + último detectado</span></div><div class="glass"><b id="worldMax">—</b><span id="worldPlace">evento mayor</span></div></div><div id="worldMap" class="realmap"></div></section>
+      <section class="card correlation">
+        <div class="eyebrow">Correlación seleccionada con Granada</div><div class="corrScore" id="corrScore">—</div><div class="corrLabel">REMOTE TRIGGER SCREENING · no es probabilidad causal</div>
+        <div class="divider"></div><div id="corrEvent" class="conclusion">Toca un terremoto importante del mapa o de la lista.</div>
+        <div class="timeline"><div class="timeBox"><span>0–6 h después</span><b id="corr6">—</b></div><div class="timeBox"><span>6–24 h</span><b id="corr24">—</b></div><div class="timeBox"><span>24–72 h</span><b id="corr72">—</b></div></div>
+        <div class="notice cyan section" id="corrConclusion">Se comparará la sismicidad observada en Granada con la tasa de fondo de los últimos 7 días. Una coincidencia temporal no demuestra causalidad.</div>
+      </section>
+    </div>
+    <section class="card pad section"><div class="title"><div><h2>Grandes terremotos recientes</h2><p>Toca uno para dibujar su conexión temporal con Granada y comparar fechas.</p></div><span class="badge" id="worldLiveBadge">USGS · CONECTANDO</span></div><div class="list" id="worldList"></div></section>
+  </main>
+
+  <main id="vibration" class="view">
+    <section class="sensorHero">
+      <div class="card sensorScreen">
+        <div class="sensorTop"><div><div class="eyebrow">Sensor del iPhone · tiempo real</div><div class="sensorState" id="sensorState">SENSORES DETENIDOS</div><div class="sensorSub" id="sensorSub">Coloca el iPhone sobre una superficie estable y toca ACTIVAR SENSORES.</div></div><span class="sensorMode" id="sensorMode">SIN DATOS</span></div>
+        <div class="vibeGauge"><i id="vibeGauge"></i></div>
+        <div class="sensorNumbers"><div class="sensorNum"><span>Vibración RMS</span><strong id="vibeRms">0.000</strong></div><div class="sensorNum"><span>Pico</span><strong id="vibePeak">0.000</strong></div><div class="sensorNum"><span>Giro RMS</span><strong id="gyroRms">0.0°</strong></div><div class="sensorNum"><span>Muestreo</span><strong id="sampleHz">0 Hz</strong></div></div>
+        <div class="sensorAlarm section" id="sensorAlarm"><div class="eyebrow">⚠ Vibración elevada detectada</div><div style="font-size:20px;font-weight:950;margin:5px 0" id="sensorAlarmTitle">POSIBLE TEMBLOR</div><div class="sensorSub" id="sensorAlarmText">Se ha detectado movimiento repetido con el teléfono aparentemente apoyado. Comprueba fuentes oficiales.</div></div>
+        <div class="notice cyan section"><b>Importante:</b> el teléfono no es un sismógrafo certificado. Una mesa, tráfico, electrodomésticos, golpes o tocar el móvil pueden generar señales. Esta pestaña detecta vibración local y nunca confirma por sí sola un terremoto.</div>
+      </div>
+      <aside class="card pad sensorCtl">
+        <div class="title"><div><h2>Monitor de vibraciones</h2><p>Acelerómetro + giroscopio · tres ejes.</p></div><span class="badge"><i class="recordDot" id="recordDot"></i><span id="recordText">OFF</span></span></div>
+        <button class="btn primary" id="startSensors">ACTIVAR SENSORES</button>
+        <button class="btn" id="calibrateSensor">CALIBRAR 3 s</button>
+        <button class="btn" id="wakeSensor">MANTENER PANTALLA ACTIVA</button>
+        <div class="sensorStatusBox"><span>Umbral dinámico</span><strong id="sensorThreshold">0.150 m/s²</strong><small class="muted" id="baselineText">Ruido base: sin calibrar</small></div>
+        <div class="rangeRow"><span>Sensibilidad</span><input id="sensorSensitivity" type="range" min="1" max="3" step="1" value="2"><b id="sensitivityLabel">MEDIA</b></div>
+        <div class="sensorStatusBox"><span>Verificación red SISMIA</span><strong id="networkVerify">SIN COMPROBAR</strong><small class="muted" id="networkVerifyText">Si salta una alerta local, SISMIA actualizará EMSC/USGS para buscar contexto.</small></div>
+      </aside>
+    </section>
+    <section class="card pad section"><div class="title"><div><h2>Aceleración lineal · XYZ</h2><p>m/s² · últimos segundos. Se elimina gravedad cuando el navegador no ofrece aceleración lineal.</p></div><span class="badge" id="accBadge">EN ESPERA</span></div><canvas id="accChart" class="motionChart"></canvas><div class="legend3"><span><i class="lx"></i>X</span><span><i class="ly"></i>Y</span><span><i class="lz"></i>Z</span></div></section>
+    <section class="card pad section"><div class="title"><div><h2>Giroscopio · XYZ</h2><p>Velocidad angular en grados/s. Ayuda a distinguir vibración de coger o girar el teléfono.</p></div><span class="badge" id="gyroBadge">EN ESPERA</span></div><canvas id="gyroChart" class="motionChart"></canvas><div class="legend3"><span><i class="lx"></i>X</span><span><i class="ly"></i>Y</span><span><i class="lz"></i>Z</span></div></section>
+    <section class="card pad section"><div class="title"><div><h2>Cómo interpreta SISMIA la señal</h2><p>Filtro local para reducir falsos positivos.</p></div></div><div class="grid3"><div class="metric"><span>Teléfono estable</span><strong id="stablePct">—</strong><small>Rotación baja durante la ventana</small></div><div class="metric"><span>Persistencia</span><strong id="persistMs">0 ms</strong><small>Tiempo sobre el umbral</small></div><div class="metric"><span>Nivel vibración</span><strong id="vibeScore">0/100</strong><small>No es probabilidad sísmica</small></div></div><div class="notice section" id="sensorExplanation">Para medir mejor: deja el iPhone inmóvil sobre una superficie rígida. Si lo sostienes con la mano, el sistema marcará MOVIMIENTO DEL TELÉFONO y evitará interpretarlo como posible vibración ambiental.</div></section>
+    <section class="grid2 section"><div class="card pad"><div class="title"><div><h2>Red SISMIA de sensores</h2><p>Coincidencias de vibración enviadas por dispositivos SISMIA, sin posición precisa.</p></div><span class="badge" id="sensorNetBadge">RED</span></div><div class="grid3"><div class="metric"><span>Últimos 10 min</span><strong id="sensorNet10">—</strong><small>dispositivos</small></div><div class="metric"><span>Última hora</span><strong id="sensorNet60">—</strong><small>dispositivos</small></div><div class="metric"><span>Confianza red</span><strong id="sensorNetConfidence">—</strong><small>no confirma terremoto</small></div></div><div class="notice cyan section" id="sensorNetText">Una sola detección puede ser ruido local. Varias detecciones independientes aumentan el interés, pero requieren contraste con redes oficiales.</div></div><div class="card pad"><div class="title"><div><h2>Modo noche</h2><p>Pantalla mínima y registro de picos mientras la PWA siga activa.</p></div><span class="badge">EXPERIMENTAL</span></div><div class="btns"><button class="btn primary" id="nightModeBtn">ACTIVAR MODO NOCHE</button><button class="btn" id="clearNightLog">BORRAR REGISTRO</button></div><div class="nightLog section" id="nightLog"><div>Sin picos registrados todavía.</div></div></div></section>
+  </main>
+
+  <main id="analysis" class="view">
+    <section class="card pad">
+      <div class="title"><div><h2>Estudio sísmico · últimas 72 horas</h2><p>Actividad, magnitudes, profundidad, clustering, migración, Gutenberg–Richter y forecast experimental.</p></div><span class="badge" id="analysisState">ACTUALIZANDO</span></div>
+      <div class="grid4"><div class="metric"><span>Eventos M≥1,5</span><strong id="aEvents">—</strong><small>72 h</small></div><div class="metric"><span>b-value aprox.</span><strong id="aB">—</strong><small>Gutenberg–Richter</small></div><div class="metric"><span>Radio clustering</span><strong id="aRadius">—</strong><small>80% eventos recientes</small></div><div class="metric"><span>Migración 6 h</span><strong id="aMigration">—</strong><small id="aMigrationDir">—</small></div></div>
+    </section>
+    <section class="card pad section"><div class="title"><div><h2>Ritmo temporal</h2><p>Número de eventos por bloques de 3 horas.</p></div><span class="badge">72 H</span></div><svg id="activityChart" class="chart" viewBox="0 0 720 200"></svg></section>
+    <div class="grid2 section">
+      <section class="card pad"><div class="title"><div><h2>Distribución de magnitudes</h2><p>¿Predominan microeventos o aparecen magnitudes mayores?</p></div></div><div id="magDist" class="dist"></div></section>
+      <section class="card pad"><div class="title"><div><h2>Distribución de profundidad</h2><p>Concentración superficial frente a eventos más profundos.</p></div></div><div id="depthDist" class="dist"></div></section>
+    </div>
+    <section class="card pad section"><div class="title"><div><h2>Comparativa temporal</h2><p>El objetivo es ver si la secuencia acelera, se estabiliza o decae.</p></div></div><div id="timeCompare" class="bars"></div></section>
+    <section class="card pad section"><div class="title"><div><h2>Forecast probabilístico experimental</h2><p>Poisson de tasa reciente + relación Gutenberg–Richter. No es un pronóstico oficial.</p></div><span class="badge">MODELO EXPERIMENTAL</span></div><div class="grid3" id="forecastCards"></div></section>
+    <section class="card pad section"><div class="title"><div><h2>ADN de la secuencia</h2><p>Huella normalizada de frecuencia, magnitud, profundidad, clustering, b-value y aceleración.</p></div><span class="badge" id="dnaBadge">ACTUAL</span></div><div id="dnaGrid" class="dnaGrid"></div><div class="notice cyan section" id="similarityText">Cargando histórico para buscar secuencias parecidas…</div></section>
+    <section class="card pad section"><div class="title"><div><h2>Máquina del tiempo · backtesting</h2><p>El modelo se prueba sobre datos pasados sin ver las 24 horas siguientes.</p></div><button class="btn" id="loadHistory">ACTUALIZAR HISTÓRICO</button></div><div class="historyStatus" id="historyStatus">Histórico todavía no cargado.</div><div class="qualityGrid section" id="backtestMetrics"><div class="quality"><span>Muestras</span><strong>—</strong></div><div class="quality"><span>Precisión alertas</span><strong>—</strong></div><div class="quality"><span>Recall M≥3</span><strong>—</strong></div><div class="quality"><span>Falsas alertas</span><strong>—</strong></div></div><div class="notice section" id="backtestNote">El backtesting sirve para detectar si SISMIA solo explica bien el pasado o si el score aporta señal prospectiva.</div></section>
+    <section class="card pad section"><div class="title"><div><h2>Mundo → Granada · prueba histórica</h2><p>Compara actividad tras grandes M≥7 con la tasa de fondo local. Correlación no equivale a causalidad.</p></div><span class="badge">365 DÍAS</span></div><div id="remoteHistory" class="remoteTable"><div class="remoteStat"><span>0–6 h</span><strong>—</strong></div><div class="remoteStat"><span>6–24 h</span><strong>—</strong></div><div class="remoteStat"><span>24–72 h</span><strong>—</strong></div></div></section>
+    <section class="card pad section"><div class="title"><div><h2>Calidad del modelo</h2><p>La app muestra cuándo los datos son suficientes y cuándo la incertidumbre es alta.</p></div></div><div id="modelQuality" class="qualityGrid"></div></section>
+    <section class="card pad section"><div class="title"><div><h2>Conclusiones</h2><p>Resumen automático de lo que cambia y de lo que todavía no puede inferirse.</p></div></div><div class="conclusion" id="analysisConclusion">Esperando datos.</div></section>
+  </main>
+
+  <main id="alerts" class="view">
+    <section class="alert"><div class="eyebrow">Nivel de vigilancia SISMIA</div><div class="alertBig" id="alertN">0 / 100</div><div class="alertState safe" id="alertState">VIGILANCIA NORMAL</div><div class="divider"></div><div class="grid2"><div><span class="eyebrow">Forecast M≥3 · 24 h</span><div style="font-size:28px;font-weight:900;margin-top:5px" id="alertP3">—</div><small class="muted">Estimación experimental, no alerta oficial.</small></div><div><span class="eyebrow">Zona de vigilancia</span><div style="font-size:18px;font-weight:850;margin-top:8px" id="alertZone">—</div><small class="muted" id="alertWindow">—</small></div></div></section>
+    <section class="card pad section"><div class="title"><div><h2>¿Por qué está en este nivel?</h2><p>Desglose completo del SISMIA Alert Score.</p></div><span class="badge" id="alertBadge">0/100</span></div><div id="alertComponents"></div></section>
+    <section class="card pad section"><div class="title"><div><h2>Interpretación de la alerta</h2><p>Datos usados, comparación y conclusión.</p></div></div><div class="conclusion" id="alertExplanation">Esperando datos.</div></section>
+    <section class="serverBox section"><div class="title"><div><h2>SISMIA Server 24/7</h2><p>Monitor servidor + Web Push. La comprobación 24/7 requiere scheduler persistente.</p></div><span class="badge" id="serverBadge">COMPROBANDO</span></div><div class="serverLine"><span><i class="serverPulse" id="serverPulse"></i>Monitor servidor</span><b id="serverMonitor">—</b></div><div class="serverLine"><span>Última ejecución</span><b id="serverLastRun">—</b></div><div class="serverLine"><span>Suscripciones push</span><b id="serverSubs">—</b></div><div class="notice cyan section" id="serverNote">El monitor puede avisar por nuevo M≥3 local detectado o por cruce del umbral SISMIA ≥80 cuando está conectado a almacenamiento y scheduler. No significa predicción exacta.</div></section>
+    <section class="card pad section"><div class="title"><div><h2>Notificaciones</h2><p>Web Push para avisos con SISMIA cerrada si la PWA está instalada y el iPhone concede permiso.</p></div></div><div class="btns"><button class="btn primary" id="askNotify">ACTIVAR PUSH 24/7</button><button class="btn" id="testAlarm">PROBAR ALARMA</button></div><div class="notice section" id="notifyState">Toca ACTIVAR PUSH 24/7 para registrar este dispositivo en el servidor SISMIA.</div></section>
+  </main>
+
+  <div class="footer">SISMIA V9 es una herramienta experimental de visualización, backtesting y forecasting estadístico. No puede predecir de forma fiable la hora, el lugar y la magnitud de un terremoto. Los “screenings” mundiales representan coincidencia/compatibilidad física para vigilancia, no causalidad demostrada. Para decisiones de seguridad, prioriza siempre IGN, Protección Civil y alertas oficiales.</div>
+</div>
+<div id="toast" class="toast"><b id="toastT"></b><p id="toastP"></p></div>
+<script src="/app-1.js"></script>
+<script src="/app-2.js"></script>
+<script src="/app-3.js"></script>
+</body>
+</html>
