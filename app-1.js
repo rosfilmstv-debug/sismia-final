@@ -61,8 +61,55 @@ function updateLatestMarkers(){
 function addGranada(map){if(map.getSource('granada'))return;map.addSource('granada',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'Point',coordinates:[G.lon,G.lat]}}});map.addLayer({id:'granada-ring',type:'circle',source:'granada',paint:{'circle-radius':10,'circle-color':'rgba(255,151,73,.18)','circle-stroke-color':'#ff9a4d','circle-stroke-width':2.4}});map.addLayer({id:'granada-label',type:'symbol',source:'granada',layout:{'text-field':'GRANADA','text-size':12,'text-offset':[0,1.6],'text-anchor':'top'},paint:{'text-color':'#ffffff','text-halo-color':'#08090c','text-halo-width':1.8}})}
 function addLocalLayers(map){if(map.getSource('local-quakes'))return;
 map.addSource('local-quakes',{type:'geojson',data:eventFC([])});
-map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:12,paint:{'heatmap-weight':['interpolate',['linear'],['get','mag'],1,.12,5,1],'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.55,11,1.25],'heatmap-radius':['interpolate',['linear'],['zoom'],7,15,11,27],'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,0,0,0)',.22,'rgba(255,255,255,.10)',.42,'rgba(255,210,143,.26)',.66,'rgba(255,145,67,.46)',1,'rgba(255,77,43,.68)'],'heatmap-opacity':.42}});
-map.addLayer({id:'local-points',type:'circle',source:'local-quakes',paint:{'circle-radius':['case',['boolean',['feature-state','selected'],false],['interpolate',['linear'],['get','mag'],1,8,3,12,5,18],['interpolate',['linear'],['get','mag'],1,5.5,3,9,5,15]],'circle-color':['step',['get','mag'],'#f2f5f8',2,'#ffd764',3,'#ff9b42',4,'#ff5d3d',5,'#ef252f'],'circle-stroke-color':['case',['boolean',['feature-state','selected'],false],'#ffffff','rgba(255,255,255,.96)'],'circle-stroke-width':['case',['boolean',['feature-state','selected'],false],3,1.45],'circle-opacity':1}});
+map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:13,paint:{
+  'heatmap-weight':['interpolate',['exponential',1.55],['get','mag'],1.5,.10,2,.20,3,.48,4,.76,5,1],
+  'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.82,9,1.05,11,1.32,13,.88],
+  'heatmap-radius':['interpolate',['linear'],['zoom'],7,11,9,18,11,27,13,34],
+  'heatmap-color':['interpolate',['linear'],['heatmap-density'],
+    0,'rgba(0,0,0,0)',
+    .10,'rgba(32,92,255,.05)',
+    .24,'rgba(37,188,255,.18)',
+    .40,'rgba(73,238,199,.24)',
+    .58,'rgba(228,220,91,.29)',
+    .76,'rgba(255,151,72,.36)',
+    .91,'rgba(255,77,76,.48)',
+    1,'rgba(226,24,57,.58)'
+  ],
+  'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.48,10,.62,13,.28]
+}});
+map.addLayer({id:'local-glow',type:'circle',source:'local-quakes',paint:{
+  'circle-radius':['interpolate',['linear'],['zoom'],
+    7,['interpolate',['linear'],['get','mag'],1.5,5,2,6,3,8,4,10,5,13],
+    10,['interpolate',['linear'],['get','mag'],1.5,8,2,10,3,14,4,18,5,23],
+    13,['interpolate',['linear'],['get','mag'],1.5,11,2,14,3,19,4,25,5,32]
+  ],
+  'circle-color':['interpolate',['linear'],['get','mag'],
+    1.5,'#43dcff',1.9,'#58e5b1',2.4,'#e9d060',3,'#ff9f50',3.6,'#ff6758',4.3,'#ff3f47',5,'#d91535'
+  ],
+  'circle-opacity':['interpolate',['linear'],['zoom'],7,.18,10,.28,13,.16],
+  'circle-blur':.82,
+  'circle-stroke-width':0
+}});
+map.addLayer({id:'local-points',type:'circle',source:'local-quakes',paint:{
+  'circle-radius':['case',['boolean',['feature-state','selected'],false],
+    ['interpolate',['linear'],['zoom'],
+      7,['interpolate',['linear'],['get','mag'],1.5,4.2,2,4.8,3,6.2,4,7.8,5,9.5],
+      10,['interpolate',['linear'],['get','mag'],1.5,7,2,7.8,3,10,4,12.5,5,15.5],
+      13,['interpolate',['linear'],['get','mag'],1.5,9,2,10,3,13,4,16.5,5,20]
+    ],
+    ['interpolate',['linear'],['zoom'],
+      7,['interpolate',['linear'],['get','mag'],1.5,2.2,2,2.7,3,3.7,4,4.8,5,6],
+      10,['interpolate',['linear'],['get','mag'],1.5,4.4,2,5,3,6.7,4,8.6,5,10.8],
+      13,['interpolate',['linear'],['get','mag'],1.5,6.2,2,7,3,9.2,4,11.8,5,14.8]
+    ]
+  ],
+  'circle-color':['interpolate',['linear'],['get','mag'],
+    1.5,'#43dcff',1.9,'#58e5b1',2.4,'#e9d060',3,'#ff9f50',3.6,'#ff6758',4.3,'#ff3f47',5,'#d91535'
+  ],
+  'circle-stroke-color':['case',['boolean',['feature-state','selected'],false],'#ffffff','rgba(255,255,255,.92)'],
+  'circle-stroke-width':['case',['boolean',['feature-state','selected'],false],3,1.15],
+  'circle-opacity':.96
+}});
 map.on('click','local-points',ev=>{const f=ev.features?.[0];if(!f)return;const e=local.find(x=>String(x.id)===String(f.properties.id));if(e)showLocalEvent(e)});
 map.on('mouseenter','local-points',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','local-points',()=>map.getCanvas().style.cursor='');
 map.addSource('forecast-zone',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
