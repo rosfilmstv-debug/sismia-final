@@ -1818,3 +1818,17 @@ body::after{
   .sismiaSatelliteBtn b{font-size:7.5px!important}
   .fullMapPage.on .fullMapShell,.fullMapPage.on .fullMapCanvas{height:100%!important}
 }
+
+
+/* === SISMIA V17 map controls === */
+.mapWrap, .fullMapWrap, .worldMapWrap, #localMap, #fullMap, #worldMap { position: relative; }
+.v17SatelliteToggle{
+  position:absolute; right:12px; bottom:42px; z-index:30;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(12,14,17,.76);
+  color:#fff; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-radius:999px; padding:9px 12px;
+  font:800 10px/1 system-ui,-apple-system,sans-serif;
+  letter-spacing:.06em; box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+.v17SatelliteToggle:active{transform:scale(.96)}

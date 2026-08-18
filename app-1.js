@@ -208,3 +208,127 @@ window.openLocal=id=>{const e=local.find(x=>String(x.id)===String(id));if(!e)ret
 function sizeFullMapPage(){const nav=document.querySelector('.nav'),top=nav?Math.ceil(nav.getBoundingClientRect().bottom+4):116;document.documentElement.style.setProperty('--sismia-map-top',top+'px');setTimeout(()=>fullLocalMapObj?.resize(),30)}
 window.addEventListener('resize',()=>{if(document.getElementById('map')?.classList.contains('on'))sizeFullMapPage()});
 function weightedCenter(es){if(!es.length)return {lat:G.lat,lon:G.lon};const now=Date.now();let sw=0,la=0,lo=0;for(const e of es){const ageH=Math.max(.05,(now-e.time)/36e5),w=(1+Math.max(0,e.mag-MC))*(1/(1+ageH/6));sw+=w;la+=e.lat*w;lo+=e.lon*w}return {lat:la/sw,lon:lo/sw}}
+
+
+/* === SISMIA V17 map visual enhancement === */
+function sismiaV17EnhanceMap(map, prefix){
+  if(!map || map.__sismiaV17Enhanced) return;
+  map.__sismiaV17Enhanced = true;
+
+  const install = () => {
+    try {
+      const sourceId = prefix === 'world' ? 'world-quakes' : 'local-quakes';
+      if(!map.getSource(sourceId)) return;
+
+      const haloId = prefix + '-v17-soft-glow';
+      if(!map.getLayer(haloId)){
+        map.addLayer({
+          id: haloId,
+          type:'circle',
+          source:sourceId,
+          paint:{
+            'circle-radius':['interpolate',['linear'],['zoom'],5,
+              ['interpolate',['linear'],['get','mag'],0,8,2,12,3,16,4,22,5,30],
+              11,['interpolate',['linear'],['get','mag'],0,11,2,17,3,23,4,31,5,42]
+            ],
+            'circle-color':['case',
+              ['<',['get','mag'],2],'#39A9FF',
+              ['<',['get','mag'],3],'#FFD84A',
+              ['<',['get','mag'],4],'#FF922E',
+              '#FF493D'
+            ],
+            'circle-opacity':0.18,
+            'circle-blur':0.9,
+            'circle-stroke-width':0
+          }
+        }, prefix + '-points');
+      }
+
+      const latestId = prefix + '-v17-latest-green';
+      if(!map.getLayer(latestId)){
+        map.addLayer({
+          id:latestId,
+          type:'circle',
+          source:sourceId,
+          filter:['==',['get','isLatest'],true],
+          paint:{
+            'circle-radius':['interpolate',['linear'],['zoom'],5,9,11,14],
+            'circle-color':'#4DFF88',
+            'circle-opacity':1,
+            'circle-stroke-color':'#EFFFF4',
+            'circle-stroke-width':2.2,
+            'circle-blur':0.04
+          }
+        });
+      }
+
+      const latestGlow = prefix + '-v17-latest-glow';
+      if(!map.getLayer(latestGlow)){
+        map.addLayer({
+          id:latestGlow,
+          type:'circle',
+          source:sourceId,
+          filter:['==',['get','isLatest'],true],
+          paint:{
+            'circle-radius':['interpolate',['linear'],['zoom'],5,24,11,38],
+            'circle-color':'#4DFF88',
+            'circle-opacity':0.28,
+            'circle-blur':0.85,
+            'circle-stroke-width':0
+          }
+        }, latestId);
+      }
+    } catch(e){ console.warn('V17 map enhancement',e); }
+  };
+  if(map.loaded()) install();
+  map.on('load', install);
+  map.on('styledata', ()=>setTimeout(install,50));
+}
+
+function sismiaV17SatelliteButton(map, container, prefix){
+  if(!map || !container || container.querySelector('.v17SatelliteToggle')) return;
+  const b=document.createElement('button');
+  b.className='v17SatelliteToggle';
+  b.type='button';
+  b.textContent='SATÉLITE';
+  b.setAttribute('aria-label','Alternar vista satélite');
+  let satellite=false;
+  b.addEventListener('click',()=>{
+    satellite=!satellite;
+    b.textContent=satellite?'MAPA':'SATÉLITE';
+    try{
+      if(satellite){
+        if(!map.getSource(prefix+'-v17-satellite')){
+          map.addSource(prefix+'-v17-satellite',{
+            type:'raster',
+            tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+            tileSize:256,
+            attribution:'Tiles © Esri'
+          });
+        }
+        if(!map.getLayer(prefix+'-v17-satellite')){
+          const first=map.getStyle()?.layers?.[0]?.id;
+          map.addLayer({id:prefix+'-v17-satellite',type:'raster',source:prefix+'-v17-satellite',paint:{'raster-opacity':0.96}}, first);
+        }
+      }else if(map.getLayer(prefix+'-v17-satellite')){
+        map.removeLayer(prefix+'-v17-satellite');
+      }
+    }catch(e){console.warn('Satellite toggle',e);}
+  });
+  container.appendChild(b);
+}
+
+function sismiaV17Init(){
+  const pairs=[
+    [window.localMap,document.getElementById('localMap'),'local'],
+    [window.fullMap,document.getElementById('fullMap'),'full'],
+    [window.worldMap,document.getElementById('worldMap'),'world']
+  ];
+  pairs.forEach(([m,c,p])=>{
+    if(!m||!c) return;
+    sismiaV17EnhanceMap(m,p);
+    sismiaV17SatelliteButton(m,c.parentElement||c,p);
+  });
+}
+window.addEventListener('load',()=>setTimeout(sismiaV17Init,1200));
+setTimeout(sismiaV17Init,2600);
