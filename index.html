@@ -17,7 +17,7 @@
 <link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 <title>SISMIA · Visualizador en tiempo real de terremotos · J.D. Ros</title>
-<link rel="stylesheet" href="/styles.css?v=17-fix">
+<link rel="stylesheet" href="/styles.css?v=18-waves-heat">
 </head>
 <body>
 <div class="app">
@@ -74,7 +74,7 @@
       <button class="btn primary" id="refreshWorld">↻ ACTUALIZAR MUNDO + GRANADA</button>
     </section>
     <div class="worldHero">
-      <section class="card mapWrap"><div class="mapHead"><div class="glass"><b>ACTIVIDAD MUNDIAL</b><span>M≥5,5 · 7 días + último detectado</span></div><div class="glass"><b id="worldMax">—</b><span id="worldPlace">evento mayor</span></div></div><div id="worldMap" class="realmap"></div></section>
+      <section class="card mapWrap"><div class="mapHead"><div class="glass"><b>ACTIVIDAD MUNDIAL</b><span>M≥4,5 · 7 días · mapa de calor</span></div><div class="glass"><b id="worldMax">—</b><span id="worldPlace">evento mayor</span></div></div><div id="worldMap" class="realmap"></div></section>
       <section class="card correlation">
         <div class="eyebrow">Correlación seleccionada con Granada</div><div class="corrScore" id="corrScore">—</div><div class="corrLabel">REMOTE TRIGGER SCREENING · no es probabilidad causal</div>
         <div class="divider"></div><div id="corrEvent" class="conclusion">Toca un terremoto importante del mapa o de la lista.</div>
@@ -82,7 +82,11 @@
         <div class="notice cyan section" id="corrConclusion">Se comparará la sismicidad observada en Granada con la tasa de fondo de los últimos 7 días. Una coincidencia temporal no demuestra causalidad.</div>
       </section>
     </div>
-    <section class="card pad section"><div class="title"><div><h2>Grandes terremotos recientes</h2><p>Toca uno para dibujar su conexión temporal con Granada y comparar fechas.</p></div><span class="badge" id="worldLiveBadge">USGS · CONECTANDO</span></div><div class="list" id="worldList"></div></section>
+    <section class="card pad section latestEventsModule">
+      <div class="title"><div><h2>Últimos eventos mundiales</h2><p>Los 5 terremotos más recientes del catálogo USGS (M≥4,5). Toca uno para verlo en el mapa.</p></div><span class="badge" id="worldChangeBadge">5 ÚLTIMOS</span></div>
+      <div id="worldChangeGrid" class="changeGrid recentEventsList"><div class="notice cyan">Esperando los últimos eventos mundiales…</div></div>
+    </section>
+    <section class="card pad section"><div class="title"><div><h2>Grandes terremotos recientes</h2><p>Ordenados por magnitud. Toca uno para dibujar su conexión temporal con Granada y comparar fechas.</p></div><span class="badge" id="worldLiveBadge">USGS · CONECTANDO</span></div><div class="list" id="worldList"></div></section>
   </section>
 
   <section id="vibration" class="view">
@@ -159,8 +163,8 @@
   <div class="footer">SISMIA V9 es una herramienta experimental de visualización, backtesting y forecasting estadístico. No puede predecir de forma fiable la hora, el lugar y la magnitud de un terremoto. Los “screenings” mundiales representan coincidencia/compatibilidad física para vigilancia, no causalidad demostrada. Para decisiones de seguridad, prioriza siempre IGN, Protección Civil y alertas oficiales.</div>
 </div>
 <div id="toast" class="toast"><b id="toastT"></b><p id="toastP"></p></div>
-<script src="/app-1.js?v=17-fix"></script>
-<script src="/app-2.js?v=17-fix"></script>
-<script src="/app-3.js?v=17-fix"></script>
+<script src="/app-1.js?v=18-waves-heat"></script>
+<script src="/app-2.js?v=18-waves-heat"></script>
+<script src="/app-3.js?v=18-waves-heat"></script>
 </body>
 </html>

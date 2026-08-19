@@ -20,6 +20,10 @@ function median(a){return percentile(a,.5)}
 function toast(t,p){$('toastT').textContent=t;$('toastP').textContent=p;$('toast').style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>$('toast').style.display='none',3600)}
 function severity(m){return m>=5?'FUERTE':m>=4?'MODERADO':m>=3?'PERCEPTIBLE':m>=2?'PEQUEÑO':'MICROSISMO'}
 function quakeTone(m){return m>=5?'mag-deep':m>=4?'mag-red':m>=3?'mag-orange':m>=2?'mag-yellow':'mag-blue'}
+/* Escalas propias para el catálogo mundial: allí todo es M≥4,5, así que la
+   escala local pintaría absolutamente todo en rojo intenso. */
+function worldTone(m){return m>=8?'mag-deep':m>=7?'mag-red':m>=6?'mag-orange':m>=5?'mag-yellow':'mag-blue'}
+function worldSeverity(m){return m>=8?'GRAN TERREMOTO':m>=7?'MUY FUERTE':m>=6?'FUERTE':m>=5?'MODERADO':'LIGERO'}
 function recentEventMarkup(e,index=0){const t=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon),depth=Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—',latest=index===0;return `<button class="recentEvent ${quakeTone(e.mag)} ${latest?'isLatest':''}" onclick="openLocal('${String(e.id).replaceAll("'","\\'")}')"><div class="recentMagnitude"><span>M</span><strong>${e.mag.toFixed(1)}</strong></div><div class="recentEventBody"><div class="recentEventTop"><b>${t.name}</b><span class="recentCategory">${severity(e.mag)}</span>${latest?'<em>ÚLTIMO</em>':''}</div><div class="recentEventMeta"><span><strong>${age(e.time)}</strong> hace</span><span>${dateLocal(e.time)}</span><span>Prof. <strong>${depth}</strong></span><span>${dG.toFixed(1)} km de Granada</span><span>${e.source}</span></div></div></button>`}
 /* El popup usaba siempre nearestTown(), que solo conoce municipios del área de
    Granada: un sismo mundial aparecía rotulado como "Padul · 5352 km". Si el
@@ -54,7 +58,9 @@ function safeMapText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;'
 
 /* MAPA V16 — base estable V5/V15 + esferas, aura térmica y satélite. */
 function localQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',2,'#FFD84D',3,'#FF922E',4,'#FF4B3E',5,'#D91932']}
-function worldQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',6.3,'#FFD84D',7.1,'#FF922E',8,'#FF4B3E',8.7,'#D91932']}
+/* El mapa mundial ahora dibuja todo el feed USGS (M≥4,5), así que los cortes de
+   color bajan para que se distingan los tramos y no salga todo azul. */
+function worldQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',5,'#FFD84D',6,'#FF922E',7,'#FF4B3E',8,'#D91932']}
 /* Radio = f(zoom, magnitud). El factor `scale` se aplica DENTRO de las paradas:
    MapLibre rechaza ['*',<expresión con zoom>,k] porque "zoom" solo puede ser
    entrada de un interpolate/step de primer nivel. */
@@ -70,8 +76,8 @@ function localHaloRadius(){return ['interpolate',['linear'],['zoom'],
   13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,14,2,16,3,20,4,25,5,31]
 ]}
 function worldPointRadius(scale=1){return ['interpolate',['linear'],['zoom'],
-  1,magRadius([[5.5,4.0],[6.5,5.0],[7.5,6.3],[9,8.2]],scale),
-  3,magRadius([[5.5,5.2],[6.5,6.5],[7.5,8.3],[9,11.5]],scale)
+  1,magRadius([[4.5,2.6],[5.5,3.8],[6.5,5.0],[7.5,6.3],[9,8.2]],scale),
+  3,magRadius([[4.5,3.4],[5.5,5.0],[6.5,6.5],[7.5,8.3],[9,11.5]],scale)
 ]}
 function emptyFC(){return {type:'FeatureCollection',features:[]}}
 function pointFC(e){return e?{type:'FeatureCollection',features:[{type:'Feature',properties:{id:String(e.id),mag:e.mag},geometry:{type:'Point',coordinates:[e.lon,e.lat]}}]}:emptyFC()}
@@ -91,23 +97,45 @@ function addLocalLayers(map){
 
   map.addSource('local-quakes',{type:'geojson',data:emptyFC()});
 
-  /* Aura térmica muy suave: solo refuerza zonas donde coinciden proximidad + magnitud. */
-  map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:13,paint:{
-    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],1.5,.12,2,.22,3,.48,4,.78,5,1],
-    'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.30,10,.48,13,.60],
-    'heatmap-radius':['interpolate',['linear'],['zoom'],7,13,10,20,13,27],
-    'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.12,10,.18,13,.13],
-    'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,0,0,0)',.18,'rgba(47,156,255,.10)',.38,'rgba(255,216,77,.13)',.63,'rgba(255,146,46,.18)',.82,'rgba(255,75,62,.22)',1,'rgba(217,25,50,.25)']
+  /* Mapa de calor: la densidad acumula los eventos PRÓXIMOS entre sí y el peso
+     escala con la magnitud, así que las zonas con muchos sismos o con sismos
+     fuertes se calientan. Antes los colores ya venían con alfa .10–.25 y encima
+     se multiplicaban por una heatmap-opacity de .12–.18, así que el resultado
+     era prácticamente invisible: ahora el color va opaco y la visibilidad se
+     controla solo con heatmap-opacity. */
+  map.addLayer({id:'local-heat',type:'heatmap',source:'local-quakes',maxzoom:17,paint:{
+    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],1.5,.18,2,.34,3,.62,4,.85,5,1],
+    'heatmap-intensity':['interpolate',['linear'],['zoom'],7,.55,10,.72,13,.95,16,1.15],
+    /* Radio generoso a propósito: con radios pequeños el calor queda íntegramente
+       tapado por los propios círculos y no se percibe. Así el campo térmico
+       desborda el enjambre y se lee la zona caliente alrededor. */
+    'heatmap-radius':['interpolate',['linear'],['zoom'],7,30,10,50,13,74,16,100],
+    'heatmap-opacity':['interpolate',['linear'],['zoom'],7,.52,10,.60,13,.50,16,.34],
+    'heatmap-color':['interpolate',['linear'],['heatmap-density'],
+      0,'rgba(0,0,0,0)',
+      .12,'rgba(31,110,205,.38)',
+      .32,'rgba(47,156,255,.55)',
+      .52,'rgba(255,216,77,.62)',
+      .70,'rgba(255,146,46,.70)',
+      .86,'rgba(255,75,62,.78)',
+      1,'rgba(217,25,50,.88)']
   }});
 
   /* Sombra inferior: aporta volumen sin perder el color de magnitud. */
   map.addLayer({id:'local-sphere-shadow',type:'circle',source:'local-quakes',paint:{
     'circle-radius':localPointRadius(),'circle-color':'#000','circle-opacity':.34,'circle-blur':.28,'circle-translate':[1.4,1.8]
   }});
-  /* Halo individual que se funde con el aura térmica. */
+  /* Halo exterior MUY suave: si se sube, cada punto se convierte en una mancha
+     difusa y tapa el mapa de calor, que es quien debe leer la zona. */
   map.addLayer({id:'local-halo',type:'circle',source:'local-quakes',paint:{
     'circle-radius':localHaloRadius(),'circle-color':localQuakeColor(),
-    'circle-opacity':['interpolate',['linear'],['zoom'],7,.14,10,.20,13,.24],'circle-blur':.84,'circle-stroke-width':0
+    'circle-opacity':['interpolate',['linear'],['zoom'],7,.10,10,.13,13,.16],'circle-blur':.95,'circle-stroke-width':0
+  }});
+  /* Brillo ceñido pegado a la esfera: es el "pequeño brillo alrededor" del punto,
+     sin invadir el área que ocupa el mapa de calor. */
+  map.addLayer({id:'local-glow',type:'circle',source:'local-quakes',paint:{
+    'circle-radius':localPointRadius(1.7),'circle-color':localQuakeColor(),
+    'circle-opacity':['interpolate',['linear'],['zoom'],7,.46,10,.54,13,.60],'circle-blur':.55,'circle-stroke-width':0
   }});
   /* Esfera central. */
   map.addLayer({id:'local-points',type:'circle',source:'local-quakes',paint:{
@@ -136,18 +164,43 @@ function addLocalLayers(map){
 function addWorldLayers(map){
   if(map.getSource('world-quakes'))return;
   map.addSource('world-quakes',{type:'geojson',data:emptyFC()});
-  map.addLayer({id:'world-heat',type:'heatmap',source:'world-quakes',maxzoom:5,paint:{
-    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],5.5,.18,6.5,.42,7.5,.72,9,1],
-    'heatmap-intensity':['interpolate',['linear'],['zoom'],0,.32,3,.52,5,.62],
-    'heatmap-radius':['interpolate',['linear'],['zoom'],0,13,3,23,5,31],
-    'heatmap-opacity':['interpolate',['linear'],['zoom'],0,.10,3,.17,5,.12],
-    'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,0,0,0)',.2,'rgba(47,156,255,.08)',.42,'rgba(255,216,77,.12)',.65,'rgba(255,146,46,.16)',.84,'rgba(255,75,62,.21)',1,'rgba(217,25,50,.24)']
+  /* Mismo criterio que en el mapa local: color opaco + heatmap-opacity real.
+     Con todo el feed USGS (M≥4,5) la densidad dibuja de verdad los cinturones
+     sísmicos en vez de quedarse en un velo imperceptible. */
+  map.addLayer({id:'world-heat',type:'heatmap',source:'world-quakes',maxzoom:7,paint:{
+    'heatmap-weight':['interpolate',['linear'],['to-number',['get','mag'],0],4.5,.20,5.5,.42,6.5,.68,7.5,.88,9,1],
+    'heatmap-intensity':['interpolate',['linear'],['zoom'],0,.55,3,.80,5,1.00,7,1.20],
+    'heatmap-radius':['interpolate',['linear'],['zoom'],0,22,3,42,5,62,7,84],
+    'heatmap-opacity':['interpolate',['linear'],['zoom'],0,.52,3,.56,5,.46,7,.30],
+    'heatmap-color':['interpolate',['linear'],['heatmap-density'],
+      0,'rgba(0,0,0,0)',
+      .12,'rgba(31,110,205,.36)',
+      .32,'rgba(47,156,255,.52)',
+      .52,'rgba(255,216,77,.60)',
+      .70,'rgba(255,146,46,.68)',
+      .86,'rgba(255,75,62,.76)',
+      1,'rgba(217,25,50,.86)']
   }});
   map.addLayer({id:'world-shadow',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(),'circle-color':'#000','circle-opacity':.34,'circle-blur':.28,'circle-translate':[1.3,1.6]}});
-  map.addLayer({id:'world-glow',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(2.8),'circle-color':worldQuakeColor(),'circle-opacity':.20,'circle-blur':.82}});
+  /* Brillo exterior amplio + brillo ceñido, igual que en el mapa de Granada. */
+  map.addLayer({id:'world-halo',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(3.2),'circle-color':worldQuakeColor(),'circle-opacity':.13,'circle-blur':.95}});
+  map.addLayer({id:'world-glow',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(1.8),'circle-color':worldQuakeColor(),'circle-opacity':.50,'circle-blur':.58}});
   map.addLayer({id:'world-points',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(),'circle-color':worldQuakeColor(),'circle-stroke-color':'rgba(255,255,255,.94)','circle-stroke-width':1.2,'circle-opacity':1}});
   map.addLayer({id:'world-shine',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(.42),'circle-color':'#fff','circle-opacity':.40,'circle-blur':.25,'circle-translate':[-1.4,-1.6]}});
-  map.on('click','world-points',ev=>{const f=ev.features?.[0];if(f)selectWorld(String(f.properties.id))});
+  /* Capa invisible de toque: los puntos mundiales son diminutos a zoom 1,2 y
+     eran casi imposibles de pulsar en el móvil. */
+  map.addLayer({id:'world-hit',type:'circle',source:'world-quakes',paint:{
+    'circle-radius':['interpolate',['linear'],['zoom'],1,9,3,12,6,16],'circle-color':'#000','circle-opacity':.001,'circle-stroke-width':0
+  }});
+  map.addSource('world-selected',{type:'geojson',data:emptyFC()});
+  map.addLayer({id:'world-selected-ring',type:'circle',source:'world-selected',paint:{
+    'circle-radius':['interpolate',['linear'],['zoom'],1,11,3,15,6,19],'circle-color':'rgba(0,0,0,0)','circle-stroke-color':'#fff','circle-stroke-width':3,'circle-opacity':1
+  }});
+  const pickWorld=ev=>{const f=ev.features?.[0];if(f)selectWorld(String(f.properties.id))};
+  map.on('click','world-hit',pickWorld);
+  map.on('click','world-points',pickWorld);
+  map.on('mouseenter','world-hit',()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave','world-hit',()=>map.getCanvas().style.cursor='');
   map.addSource('world-link',{type:'geojson',data:emptyFC()});
   map.addLayer({id:'world-link-line',type:'line',source:'world-link',paint:{'line-color':'#ff9b4a','line-width':2,'line-dasharray':[2,2],'line-opacity':.78}})
 }
@@ -213,21 +266,47 @@ function ensureWorldMap(){
   return worldMapObj
 }
 
-function latestMarkerElement(kind,e){const el=document.createElement('button'),place=kind==='world'?(e.place||'Actividad mundial'):nearestTown(e.lat,e.lon).name;el.type='button';el.className='latest-seismo-marker '+(kind==='world'?'world':'local');el.setAttribute('aria-label',`Último seísmo ${kind==='world'?'mundial':'de Granada'}: magnitud ${e.mag.toFixed(1)} a las ${markerClock(e.time)}`);el.innerHTML=`<span class="latest-pin"></span><span class="latest-card"><em>ÚLTIMO</em><strong>M${e.mag.toFixed(1)} <i>${markerClock(e.time)}</i></strong><small>${safeMapText(place)}</small></span>`;el.onclick=ev=>{ev.stopPropagation();kind==='world'?selectWorld(e.id):showLocalEvent(e,mapForMarker(el))};return el}
+function latestMarkerElement(kind,e){const el=document.createElement('button'),place=kind==='world'?(e.place||'Actividad mundial'):nearestTown(e.lat,e.lon).name;el.type='button';el.className='latest-seismo-marker '+(kind==='world'?'world':'local');el.setAttribute('aria-label',`Último seísmo ${kind==='world'?'mundial':'de Granada'}: magnitud ${e.mag.toFixed(1)} a las ${markerClock(e.time)}`);/* Tres ondas concéntricas animadas sobre el punto del último sismo, además del
+   cartel. Se pintan como elementos reales (no ::before/::after) para poder
+   escalonar los retardos y que se vean con claridad. */
+el.innerHTML=`<span class="latest-pin"><i class="latest-ripple r1"></i><i class="latest-ripple r2"></i><i class="latest-ripple r3"></i></span><span class="latest-card"><em>ÚLTIMO</em><strong>M${e.mag.toFixed(1)} <i>${markerClock(e.time)}</i></strong><small>${safeMapText(place)}</small></span>`;el.onclick=ev=>{ev.stopPropagation();kind==='world'?selectWorld(e.id):showLocalEvent(e,mapForMarker(el))};return el}
 function mapForMarker(el){return [localMapObj,fullLocalMapObj,worldMapObj].find(m=>m&&m.getContainer()?.contains(el))||localMapObj}
-function syncLatestMarker(kind,e,map){if(!map)return;const old=latestMarkers.get(map);if(old){try{old.remove()}catch(_){}}if(!e)return;try{const marker=new maplibregl.Marker({element:latestMarkerElement(kind,e),anchor:'bottom'}).setLngLat([e.lon,e.lat]).addTo(map);latestMarkers.set(map,marker)}catch(err){console.warn('SISMIA latest marker',err)}}
+function syncLatestMarker(kind,e,map){if(!map)return;const old=latestMarkers.get(map);if(old){try{old.remove()}catch(_){}}if(!e)return;try{/* anchor:'center' (antes 'bottom'): ahora el elemento mide justo lo que el
+   punto, así el círculo y sus ondas quedan centrados en el epicentro. */
+const marker=new maplibregl.Marker({element:latestMarkerElement(kind,e),anchor:'center'}).setLngLat([e.lon,e.lat]).addTo(map);latestMarkers.set(map,marker)}catch(err){console.warn('SISMIA latest marker',err)}}
 function updateLatestMarkers(){const es=model?.e72||local.filter(e=>Date.now()-e.time<=72*36e5);if(localMapObj)syncLatestMarker('local',newest(es),localMapObj);if(fullLocalMapObj)syncLatestMarker('local',newest(es),fullLocalMapObj);if(worldMapObj)syncLatestMarker('world',newest(world),worldMapObj)}
 
 function ensureLocalEventPanel(map){let panel=localMapPanels.get(map);if(panel?.isConnected)return panel;const wrap=map.getContainer()?.closest('.mapWrap,.fullMapShell')||map.getContainer()?.parentElement;if(!wrap)return null;panel=document.createElement('aside');panel.className='mapEventPanel';panel.setAttribute('aria-live','polite');wrap.appendChild(panel);localMapPanels.set(map,panel);return panel}
-function setSelectedLocalPoint(map,e){const src=map?.getSource?.('local-selected');if(src)src.setData(pointFC(e))}
-function clearSelectedLocalPoint(map){const src=map?.getSource?.('local-selected');if(src)src.setData(emptyFC())}
+/* El nombre de la fuente depende del mapa: 'local-selected' en Granada y
+   'world-selected' en el mundial. */
+function selectedSourceId(map){return map===worldMapObj?'world-selected':'local-selected'}
+function setSelectedLocalPoint(map,e){const src=map?.getSource?.(selectedSourceId(map));if(src)src.setData(pointFC(e))}
+function clearSelectedLocalPoint(map){const src=map?.getSource?.(selectedSourceId(map));if(src)src.setData(emptyFC())}
 function closeLocalEventPanel(map){if(!map)return;clearSelectedLocalPoint(map);const panel=localMapPanels.get(map);if(panel)panel.classList.remove('on')}
-window.closeLocalMapEvent=()=>{[localMapObj,fullLocalMapObj].filter(Boolean).forEach(closeLocalEventPanel);selectedLocal=null};
+function allMaps(){return [localMapObj,fullLocalMapObj,worldMapObj].filter(Boolean)}
+window.closeLocalMapEvent=()=>{allMaps().forEach(closeLocalEventPanel);selectedLocal=null};
 function localEventPanelHTML(e){const t=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon),depth=Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—';return `<button type="button" class="mapEventClose" aria-label="Cerrar información">×</button><div class="mapEventKicker">${severity(e.mag)}</div><div class="mapEventHeadline"><strong>M${e.mag.toFixed(1)}</strong><div><b>${safeMapText(t.name)}</b><span>${age(e.time)} · ${dateLocal(e.time)}</span></div></div><div class="mapEventFacts"><span><small>Profundidad</small><b>${depth}</b></span><span><small>Granada</small><b>${dG.toFixed(1)} km</b></span><span><small>Fuente</small><b>${safeMapText(e.source)}</b></span></div>`}
+/* Ficha del mapa mundial: mismo componente y mismo comportamiento que la de
+   Granada, con dos datos extra propios del catálogo remoto (llegada estimada de
+   las ondas superficiales y score de screening). */
+function worldEventPanelHTML(e){
+  const r=typeof remoteMetrics==='function'?remoteMetrics(e):null,
+    dG=hav(e.lat,e.lon,G.lat,G.lon),
+    depth=Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—';
+  return `<button type="button" class="mapEventClose" aria-label="Cerrar información">×</button><div class="mapEventKicker">${worldSeverity(e.mag)}</div><div class="mapEventHeadline"><strong>M${e.mag.toFixed(1)}</strong><div><b>${safeMapText(e.place||'Localización no disponible')}</b><span>${age(e.time)} · ${dateLocal(e.time)}</span></div></div><div class="mapEventFacts"><span><small>Profundidad</small><b>${depth}</b></span><span><small>Granada</small><b>${Math.round(dG).toLocaleString('es-ES')} km</b></span><span><small>Fuente</small><b>${safeMapText(e.source||'USGS')}</b></span><span><small>Llegada ondas</small><b>${r?dateLocal(r.arrival):'—'}</b></span><span><small>Screening</small><b>${r?r.screen+'/100':'—'}</b></span><span><small>Clase</small><b>${severity(e.mag)}</b></span></div>`
+}
+function showWorldEvent(e,map=ensureWorldMap()){
+  if(!map||!e)return;
+  allMaps().forEach(m=>{if(m!==map)closeLocalEventPanel(m)});
+  const panel=ensureLocalEventPanel(map);if(!panel)return;
+  setSelectedLocalPoint(map,e);
+  panel.innerHTML=worldEventPanelHTML(e);panel.className=`mapEventPanel on ${worldTone(e.mag)}`;
+  panel.querySelector('.mapEventClose')?.addEventListener('click',ev=>{ev.stopPropagation();closeLocalEventPanel(map)})
+}
 function showLocalEvent(e,map=ensureLocalMap()){
   if(!map||!e)return;
   /* Solo una ficha abierta en toda la app. */
-  [localMapObj,fullLocalMapObj].filter(Boolean).forEach(m=>{if(m!==map)closeLocalEventPanel(m)});
+  allMaps().forEach(m=>{if(m!==map)closeLocalEventPanel(m)});
   const panel=ensureLocalEventPanel(map);if(!panel)return;
   selectedLocal=e;setSelectedLocalPoint(map,e);
   panel.innerHTML=localEventPanelHTML(e);panel.className=`mapEventPanel on ${quakeTone(e.mag)}`;
