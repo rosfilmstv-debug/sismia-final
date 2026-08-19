@@ -7,12 +7,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SISMIA">
+<meta name="description" content="SISMIA: visualizador en tiempo real de terremotos en Granada con datos EMSC y USGS, análisis estadístico experimental y monitor de vibraciones.">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/icon.svg">
-<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
-<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
+<link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 <title>SISMIA · Visualizador en tiempo real de terremotos · J.D. Ros</title>
-<link rel="stylesheet" href="/styles.css?v=16-map-spheres">
+<link rel="stylesheet" href="/styles.css?v=17-fix">
 </head>
 <body>
 <div class="app">
@@ -52,7 +57,7 @@
     <section class="card pad section feltReportCard" id="feltReport"><div class="title"><div><h2>¿Lo has sentido?</h2><p>Reporte ciudadano anónimo y aproximado. No sustituye un informe oficial.</p></div><span class="badge">RED SISMIA</span></div><div class="feltBtns"><button data-felt="0">NO</button><button data-felt="1">LEVE</button><button data-felt="2">CLARO</button><button data-felt="3">FUERTE</button></div><div class="communityStats" id="communityStats"><div><b>—</b><span>sin sentir</span></div><div><b>—</b><span>leve</span></div><div><b>—</b><span>claro</span></div><div><b>—</b><span>fuerte</span></div></div><div class="notice cyan section" id="communityNote">Consultando reportes SISMIA de las últimas 24 h…</div></section>
   </main>
 
-  <main id="map" class="view fullMapPage" aria-label="Mapa sísmico de Granada a pantalla completa">
+  <section id="map" class="view fullMapPage" aria-label="Mapa sísmico de Granada a pantalla completa">
     <section class="fullMapShell">
       <div id="fullLocalMap" class="fullMapCanvas"></div>
       <div class="fullMapHud">
@@ -61,9 +66,9 @@
       </div>
       <div class="fullMapLegend" aria-label="Leyenda de magnitud"><span class="q1">M&lt;2</span><span class="q2">M2</span><span class="q3">M3</span><span class="q4">M4</span><span class="q5">M5+</span></div>
     </section>
-  </main>
+  </section>
 
-  <main id="world" class="view">
+  <section id="world" class="view">
     <section class="card pad sourcePanel" style="margin-bottom:10px">
       <div><div class="eyebrow">Datos mundiales en Internet</div><div class="updateStamp" id="worldUpdateStamp" style="margin-top:6px">Esperando primera sincronización…</div></div>
       <button class="btn primary" id="refreshWorld">↻ ACTUALIZAR MUNDO + GRANADA</button>
@@ -78,9 +83,9 @@
       </section>
     </div>
     <section class="card pad section"><div class="title"><div><h2>Grandes terremotos recientes</h2><p>Toca uno para dibujar su conexión temporal con Granada y comparar fechas.</p></div><span class="badge" id="worldLiveBadge">USGS · CONECTANDO</span></div><div class="list" id="worldList"></div></section>
-  </main>
+  </section>
 
-  <main id="vibration" class="view">
+  <section id="vibration" class="view">
     <section class="sensorHero">
       <div class="card sensorScreen">
         <div class="sensorTop"><div><div class="eyebrow">Sensor del iPhone · tiempo real</div><div class="sensorState" id="sensorState">SENSORES DETENIDOS</div><div class="sensorSub" id="sensorSub">Coloca el iPhone sobre una superficie estable y toca ACTIVAR SENSORES.</div></div><span class="sensorMode" id="sensorMode">SIN DATOS</span></div>
@@ -103,9 +108,9 @@
     <section class="card pad section"><div class="title"><div><h2>Giroscopio · XYZ</h2><p>Velocidad angular en grados/s. Ayuda a distinguir vibración de coger o girar el teléfono.</p></div><span class="badge" id="gyroBadge">EN ESPERA</span></div><canvas id="gyroChart" class="motionChart"></canvas><div class="legend3"><span><i class="lx"></i>X</span><span><i class="ly"></i>Y</span><span><i class="lz"></i>Z</span></div></section>
     <section class="card pad section"><div class="title"><div><h2>Cómo interpreta SISMIA la señal</h2><p>Filtro local para reducir falsos positivos.</p></div></div><div class="grid3"><div class="metric"><span>Teléfono estable</span><strong id="stablePct">—</strong><small>Rotación baja durante la ventana</small></div><div class="metric"><span>Persistencia</span><strong id="persistMs">0 ms</strong><small>Tiempo sobre el umbral</small></div><div class="metric"><span>Nivel vibración</span><strong id="vibeScore">0/100</strong><small>No es probabilidad sísmica</small></div></div><div class="notice section" id="sensorExplanation">Para medir mejor: deja el iPhone inmóvil sobre una superficie rígida. Si lo sostienes con la mano, el sistema marcará MOVIMIENTO DEL TELÉFONO y evitará interpretarlo como posible vibración ambiental.</div></section>
     <section class="grid2 section"><div class="card pad"><div class="title"><div><h2>Red SISMIA de sensores</h2><p>Coincidencias de vibración enviadas por dispositivos SISMIA, sin posición precisa.</p></div><span class="badge" id="sensorNetBadge">RED</span></div><div class="grid3"><div class="metric"><span>Últimos 10 min</span><strong id="sensorNet10">—</strong><small>dispositivos</small></div><div class="metric"><span>Última hora</span><strong id="sensorNet60">—</strong><small>dispositivos</small></div><div class="metric"><span>Confianza red</span><strong id="sensorNetConfidence">—</strong><small>no confirma terremoto</small></div></div><div class="notice cyan section" id="sensorNetText">Una sola detección puede ser ruido local. Varias detecciones independientes aumentan el interés, pero requieren contraste con redes oficiales.</div></div><div class="card pad"><div class="title"><div><h2>Modo noche</h2><p>Pantalla mínima y registro de picos mientras la PWA siga activa.</p></div><span class="badge">EXPERIMENTAL</span></div><div class="btns"><button class="btn primary" id="nightModeBtn">ACTIVAR MODO NOCHE</button><button class="btn" id="clearNightLog">BORRAR REGISTRO</button></div><div class="nightLog section" id="nightLog"><div>Sin picos registrados todavía.</div></div></div></section>
-  </main>
+  </section>
 
-  <main id="analysis" class="view analysisUnified">
+  <section id="analysis" class="view analysisUnified">
     <section class="card pad analysisBlock analysisOverview">
       <div class="title"><div><h2>Situación actual</h2><p>Lectura automática de la actividad sísmica reciente en Granada.</p></div><span class="badge" id="analysisState">ACTUALIZANDO</span></div>
       <div class="analysisHero">
@@ -149,13 +154,13 @@
         <div id="serverNote" class="serverNoteHidden">Estado del backend.</div>
       </div>
     </section>
-  </main>
+  </section>
 
   <div class="footer">SISMIA V9 es una herramienta experimental de visualización, backtesting y forecasting estadístico. No puede predecir de forma fiable la hora, el lugar y la magnitud de un terremoto. Los “screenings” mundiales representan coincidencia/compatibilidad física para vigilancia, no causalidad demostrada. Para decisiones de seguridad, prioriza siempre IGN, Protección Civil y alertas oficiales.</div>
 </div>
 <div id="toast" class="toast"><b id="toastT"></b><p id="toastP"></p></div>
-<script src="/app-1.js?v=16-map-spheres"></script>
-<script src="/app-2.js?v=16-map-spheres"></script>
-<script src="/app-3.js?v=15-map-rebuild"></script>
+<script src="/app-1.js?v=17-fix"></script>
+<script src="/app-2.js?v=17-fix"></script>
+<script src="/app-3.js?v=17-fix"></script>
 </body>
 </html>

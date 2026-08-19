@@ -1,7 +1,7 @@
 
 const $=id=>document.getElementById(id), G={lat:37.1773,lon:-3.5986}, MC=1.5;
 let local=[], world=[], localMapObj=null, fullLocalMapObj=null, worldMapObj=null, selectedWorld=null, model=null, interacted=false, lastAlertState=false, sourceMeta={local:null,world:null,fetchedAt:null};
-let localLatestMarker=null,worldLatestMarker=null,lastLatestLocalId=null,lastLatestWorldId=null;
+let localLatestMarker=null,worldLatestMarker=null,lastLatestLocalId=null,lastLatestWorldId=null,worldPopup=null;
 const localMapPanels=new WeakMap(),localSelectedIds=new WeakMap(),latestMarkers=new WeakMap();
 let sensorRunning=false,sensorWakeLock=null,sensorCalibrating=false,sensorCalibration=[],sensorBaseline=.02,sensorSensitivity=2,sensorPersistStart=0,sensorLastAlert=0,sensorLastEvent=0,sensorHzSamples=[],sensorGravity={x:0,y:0,z:0},sensorUsingLinear=false;
 let accHistory=[],gyroHistory=[],sensorWindow=[],sensorMaxPoints=180;
@@ -21,7 +21,11 @@ function toast(t,p){$('toastT').textContent=t;$('toastP').textContent=p;$('toast
 function severity(m){return m>=5?'FUERTE':m>=4?'MODERADO':m>=3?'PERCEPTIBLE':m>=2?'PEQUEÑO':'MICROSISMO'}
 function quakeTone(m){return m>=5?'mag-deep':m>=4?'mag-red':m>=3?'mag-orange':m>=2?'mag-yellow':'mag-blue'}
 function recentEventMarkup(e,index=0){const t=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon),depth=Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—',latest=index===0;return `<button class="recentEvent ${quakeTone(e.mag)} ${latest?'isLatest':''}" onclick="openLocal('${String(e.id).replaceAll("'","\\'")}')"><div class="recentMagnitude"><span>M</span><strong>${e.mag.toFixed(1)}</strong></div><div class="recentEventBody"><div class="recentEventTop"><b>${t.name}</b><span class="recentCategory">${severity(e.mag)}</span>${latest?'<em>ÚLTIMO</em>':''}</div><div class="recentEventMeta"><span><strong>${age(e.time)}</strong> hace</span><span>${dateLocal(e.time)}</span><span>Prof. <strong>${depth}</strong></span><span>${dG.toFixed(1)} km de Granada</span><span>${e.source}</span></div></div></button>`}
-function popupHTML(e){const town=nearestTown(e.lat,e.lon),dG=hav(e.lat,e.lon,G.lat,G.lon);return `<div class="popupMag">M${e.mag.toFixed(1)}</div><div class="popupPlace">${town.name}${town.d>1?' · '+town.d.toFixed(1)+' km':''}</div><div class="popupGrid"><div class="popupCell"><span>Hace</span><b>${age(e.time)}</b></div><div class="popupCell"><span>Hora local</span><b>${dateLocal(e.time)}</b></div><div class="popupCell"><span>Profundidad</span><b>${Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—'}</b></div><div class="popupCell"><span>Clase</span><b>${severity(e.mag)}</b></div><div class="popupCell"><span>Dist. Granada</span><b>${dG.toFixed(1)} km</b></div><div class="popupCell"><span>Intensidad oficial</span><b>${e.intensity||'no incluida'}</b></div></div>`}
+/* El popup usaba siempre nearestTown(), que solo conoce municipios del área de
+   Granada: un sismo mundial aparecía rotulado como "Padul · 5352 km". Si el
+   evento está lejos se usa su propia localización (place) del catálogo. */
+function eventPlaceLabel(e){const town=nearestTown(e.lat,e.lon);if(town.d>60)return e.place||'Localización no disponible';return town.name+(town.d>1?' · '+town.d.toFixed(1)+' km':'')}
+function popupHTML(e){const dG=hav(e.lat,e.lon,G.lat,G.lon);return `<div class="popupMag">M${e.mag.toFixed(1)}</div><div class="popupPlace">${safeMapText(eventPlaceLabel(e))}</div><div class="popupGrid"><div class="popupCell"><span>Hace</span><b>${age(e.time)}</b></div><div class="popupCell"><span>Hora local</span><b>${dateLocal(e.time)}</b></div><div class="popupCell"><span>Profundidad</span><b>${Number.isFinite(e.depth)?e.depth.toFixed(1)+' km':'—'}</b></div><div class="popupCell"><span>Clase</span><b>${severity(e.mag)}</b></div><div class="popupCell"><span>Dist. Granada</span><b>${dG.toFixed(1)} km</b></div><div class="popupCell"><span>Intensidad oficial</span><b>${e.intensity||'no incluida'}</b></div></div>`}
 function circlePoly(lat,lon,rKm,n=64){const pts=[];for(let i=0;i<=n;i++){const br=2*Math.PI*i/n,dr=rKm/6371,la=rad(lat),lo=rad(lon);const la2=Math.asin(Math.sin(la)*Math.cos(dr)+Math.cos(la)*Math.sin(dr)*Math.cos(br));const lo2=lo+Math.atan2(Math.sin(br)*Math.sin(dr)*Math.cos(la),Math.cos(dr)-Math.sin(la)*Math.sin(la2));pts.push([deg(lo2),deg(la2)])}return {type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[pts]}}}
 function eventFC(es){return {type:'FeatureCollection',features:es.map(e=>({type:'Feature',id:String(e.id),properties:{id:String(e.id),mag:e.mag,place:e.place,time:e.time,depth:e.depth,source:e.source},geometry:{type:'Point',coordinates:[e.lon,e.lat]}}))}}
 function shiftLatLon(lat,lon,km,bearingDeg){const d=km/6371,br=rad(bearingDeg),la=rad(lat),lo=rad(lon),la2=Math.asin(Math.sin(la)*Math.cos(d)+Math.cos(la)*Math.sin(d)*Math.cos(br)),lo2=lo+Math.atan2(Math.sin(br)*Math.sin(d)*Math.cos(la),Math.cos(d)-Math.sin(la)*Math.sin(la2));return{lat:deg(la2),lon:deg(lo2)}}
@@ -30,13 +34,20 @@ function snapshotNow(){if(!model)return null;return{at:Date.now(),events72:model
 function deltaText(v,suffix=''){if(!Number.isFinite(v))return'—';return`${v>0?'+':''}${typeof v==='number'&&Math.abs(v)<10?v.toFixed(1):Math.round(v)}${suffix}`}
 function saveVisitSnapshot(){const snap=snapshotNow();if(snap)try{localStorage.setItem('sismia-last-visit-v9',JSON.stringify(snap))}catch(_){}}
 function renderChanges(){const es=local.slice().sort((a,b)=>b.time-a.time).slice(0,5);$('changeBadge').textContent=es.length?`${es.length} ÚLTIMOS`:'SIN DATOS';$('changeGrid').innerHTML=es.map((e,i)=>recentEventMarkup(e,i)).join('')||'<div class="notice">No hay eventos locales disponibles.</div>'}
-function renderScenarios(){if(!model)return;let decay=clamp(60-(model.accel-1)*28-model.p3*.18,8,88),persistent=clamp(28+Math.abs(model.accel-1)*18+model.e24*.25,8,75),escalation=clamp(8+model.p3*.35+Math.max(0,model.max-3)*9,3,65),sum=decay+persistent+escalation;decay=100*decay/sum;persistent=100*persistent/sum;escalation=100*escalation/sum;$('scenarioGrid').innerHTML=[['Decaimiento',decay,'Menor ritmo y progresiva relajación de la secuencia.'],['Persistencia',persistent,'Continúan microeventos/M2–M3 sin cambio brusco.'],['Escalada',escalation,'Aumenta el peso relativo de un evento significativamente mayor.']].map(x=>`<div class="scenario"><div class="pct">${Math.round(x[1])}%</div><b>${x[0]}</b><small>${x[2]} Peso heurístico, no probabilidad calibrada.</small></div>`).join('')}
-function setForecastHorizon(h){forecastHorizon=Number(h)||3;document.querySelectorAll('#horizonBtns button').forEach(b=>b.classList.toggle('on',Number(b.dataset.h)===forecastHorizon));$('horizonBadge').textContent=(forecastHorizon===3?'0–3':forecastHorizon===6?'3–6':forecastHorizon===12?'6–12':'12–24')+' H';renderLocalMap()}
+/* Los bloques "escenarios", "ADN sísmico" y "horizonte" no están en index.html
+   (quedaron de una versión anterior). Se comprueba el contenedor antes de escribir
+   para que no lancen TypeError si se vuelven a llamar. */
+function renderScenarios(){if(!model||!$('scenarioGrid'))return;let decay=clamp(60-(model.accel-1)*28-model.p3*.18,8,88),persistent=clamp(28+Math.abs(model.accel-1)*18+model.e24*.25,8,75),escalation=clamp(8+model.p3*.35+Math.max(0,model.max-3)*9,3,65),sum=decay+persistent+escalation;decay=100*decay/sum;persistent=100*persistent/sum;escalation=100*escalation/sum;$('scenarioGrid').innerHTML=[['Decaimiento',decay,'Menor ritmo y progresiva relajación de la secuencia.'],['Persistencia',persistent,'Continúan microeventos/M2–M3 sin cambio brusco.'],['Escalada',escalation,'Aumenta el peso relativo de un evento significativamente mayor.']].map(x=>`<div class="scenario"><div class="pct">${Math.round(x[1])}%</div><b>${x[0]}</b><small>${x[2]} Peso heurístico, no probabilidad calibrada.</small></div>`).join('')}
+function setForecastHorizon(h){forecastHorizon=Number(h)||3;document.querySelectorAll('#horizonBtns button').forEach(b=>b.classList.toggle('on',Number(b.dataset.h)===forecastHorizon));if($('horizonBadge'))$('horizonBadge').textContent=(forecastHorizon===3?'0–3':forecastHorizon===6?'3–6':forecastHorizon===12?'6–12':'12–24')+' H';renderLocalMap()}
 function dnaVector(m=model){if(!m)return[];return[['Frecuencia',clamp(m.rate/3,0,1),m.rate.toFixed(2)+'/h'],['Magnitud',clamp(m.max/5,0,1),'M'+m.max.toFixed(1)],['Superficial',clamp(m.shallow,0,1),Math.round(m.shallow*100)+'%'],['Cluster',clamp(1-m.radius/30,0,1),m.radius.toFixed(1)+' km'],['b-value',clamp((m.b||0)/1.8,0,1),m.b?m.b.toFixed(2):'N/D'],['Aceleración',clamp(m.accel/2.5,0,1),m.accel.toFixed(2)+'×']]}
-function renderDNA(){if(!model)return;const v=dnaVector();$('dnaGrid').innerHTML=v.map(x=>`<div class="dnaCell"><span>${x[0]}</span><strong>${x[2]}</strong><div class="miniTrack"><i style="width:${Math.round(x[1]*100)}%"></i></div></div>`).join('')}
+function renderDNA(){if(!model||!$('dnaGrid'))return;const v=dnaVector();$('dnaGrid').innerHTML=v.map(x=>`<div class="dnaCell"><span>${x[0]}</span><strong>${x[2]}</strong><div class="miniTrack"><i style="width:${Math.round(x[1]*100)}%"></i></div></div>`).join('')}
 
 
 
+/* Etiqueta única para la insignia de la pestaña Análisis: la calculaban por
+   separado renderAnalysis() (siempre "DATOS EN VIVO") y renderSourceMeta(), así
+   que al abrir Análisis sin conexión se anunciaban datos en vivo inexistentes. */
+function analysisStateLabel(){const lm=sourceMeta.local;return lm?.ok?'EMSC LIVE':lm?.cached?'EMSC CACHÉ':'SIN DATOS'}
 function newest(es){return es?.length?es.reduce((a,b)=>!a||b.time>a.time?b:a,null):null}
 function markerClock(t){return new Intl.DateTimeFormat('es-ES',{hour:'2-digit',minute:'2-digit'}).format(new Date(t))}
 function safeMapText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -44,19 +55,23 @@ function safeMapText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;'
 /* MAPA V16 — base estable V5/V15 + esferas, aura térmica y satélite. */
 function localQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',2,'#FFD84D',3,'#FF922E',4,'#FF4B3E',5,'#D91932']}
 function worldQuakeColor(){return ['step',['to-number',['get','mag'],0],'#2F9CFF',6.3,'#FFD84D',7.1,'#FF922E',8,'#FF4B3E',8.7,'#D91932']}
-function localPointRadius(){return ['interpolate',['linear'],['zoom'],
-  7,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,2.7,2,3.0,3,3.8,4,4.8,5,5.9],
-  10,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,4.2,2,4.7,3,5.8,4,7.1,5,8.5],
-  13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,5.2,2,5.9,3,7.2,4,8.9,5,10.6]
+/* Radio = f(zoom, magnitud). El factor `scale` se aplica DENTRO de las paradas:
+   MapLibre rechaza ['*',<expresión con zoom>,k] porque "zoom" solo puede ser
+   entrada de un interpolate/step de primer nivel. */
+function magRadius(stops,scale=1){const out=['interpolate',['linear'],['to-number',['get','mag'],0]];for(const [m,r] of stops)out.push(m,+(r*scale).toFixed(3));return out}
+function localPointRadius(scale=1){return ['interpolate',['linear'],['zoom'],
+  7,magRadius([[1.5,2.7],[2,3.0],[3,3.8],[4,4.8],[5,5.9]],scale),
+  10,magRadius([[1.5,4.2],[2,4.7],[3,5.8],[4,7.1],[5,8.5]],scale),
+  13,magRadius([[1.5,5.2],[2,5.9],[3,7.2],[4,8.9],[5,10.6]],scale)
 ]}
 function localHaloRadius(){return ['interpolate',['linear'],['zoom'],
   7,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,7,2,8,3,10,4,13,5,16],
   10,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,10,2,12,3,15,4,19,5,23],
   13,['interpolate',['linear'],['to-number',['get','mag'],0],1.5,14,2,16,3,20,4,25,5,31]
 ]}
-function worldPointRadius(){return ['interpolate',['linear'],['zoom'],
-  1,['interpolate',['linear'],['to-number',['get','mag'],0],5.5,4.0,6.5,5.0,7.5,6.3,9,8.2],
-  3,['interpolate',['linear'],['to-number',['get','mag'],0],5.5,5.2,6.5,6.5,7.5,8.3,9,11.5]
+function worldPointRadius(scale=1){return ['interpolate',['linear'],['zoom'],
+  1,magRadius([[5.5,4.0],[6.5,5.0],[7.5,6.3],[9,8.2]],scale),
+  3,magRadius([[5.5,5.2],[6.5,6.5],[7.5,8.3],[9,11.5]],scale)
 ]}
 function emptyFC(){return {type:'FeatureCollection',features:[]}}
 function pointFC(e){return e?{type:'FeatureCollection',features:[{type:'Feature',properties:{id:String(e.id),mag:e.mag},geometry:{type:'Point',coordinates:[e.lon,e.lat]}}]}:emptyFC()}
@@ -101,7 +116,7 @@ function addLocalLayers(map){
   }});
   /* Brillo desplazado = sensación de esfera/degradado. */
   map.addLayer({id:'local-sphere-shine',type:'circle',source:'local-quakes',paint:{
-    'circle-radius':['*',localPointRadius(),.42],'circle-color':'#fff','circle-opacity':.40,'circle-blur':.28,'circle-translate':[-1.5,-1.7]
+    'circle-radius':localPointRadius(.42),'circle-color':'#fff','circle-opacity':.40,'circle-blur':.28,'circle-translate':[-1.5,-1.7]
   }});
   /* Capa invisible de toque. */
   map.addLayer({id:'local-hit',type:'circle',source:'local-quakes',paint:{
@@ -129,9 +144,9 @@ function addWorldLayers(map){
     'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,0,0,0)',.2,'rgba(47,156,255,.08)',.42,'rgba(255,216,77,.12)',.65,'rgba(255,146,46,.16)',.84,'rgba(255,75,62,.21)',1,'rgba(217,25,50,.24)']
   }});
   map.addLayer({id:'world-shadow',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(),'circle-color':'#000','circle-opacity':.34,'circle-blur':.28,'circle-translate':[1.3,1.6]}});
-  map.addLayer({id:'world-glow',type:'circle',source:'world-quakes',paint:{'circle-radius':['*',worldPointRadius(),2.8],'circle-color':worldQuakeColor(),'circle-opacity':.20,'circle-blur':.82}});
+  map.addLayer({id:'world-glow',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(2.8),'circle-color':worldQuakeColor(),'circle-opacity':.20,'circle-blur':.82}});
   map.addLayer({id:'world-points',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(),'circle-color':worldQuakeColor(),'circle-stroke-color':'rgba(255,255,255,.94)','circle-stroke-width':1.2,'circle-opacity':1}});
-  map.addLayer({id:'world-shine',type:'circle',source:'world-quakes',paint:{'circle-radius':['*',worldPointRadius(),.42],'circle-color':'#fff','circle-opacity':.40,'circle-blur':.25,'circle-translate':[-1.4,-1.6]}});
+  map.addLayer({id:'world-shine',type:'circle',source:'world-quakes',paint:{'circle-radius':worldPointRadius(.42),'circle-color':'#fff','circle-opacity':.40,'circle-blur':.25,'circle-translate':[-1.4,-1.6]}});
   map.on('click','world-points',ev=>{const f=ev.features?.[0];if(f)selectWorld(String(f.properties.id))});
   map.addSource('world-link',{type:'geojson',data:emptyFC()});
   map.addLayer({id:'world-link-line',type:'line',source:'world-link',paint:{'line-color':'#ff9b4a','line-width':2,'line-dasharray':[2,2],'line-opacity':.78}})
@@ -168,18 +183,35 @@ function makeLocalMap(container,full=false){
   map.addControl(satelliteControl(),'bottom-right');
   map.on('load',()=>{
     try{tuneLocalBaseMap(map)}catch(_){}
-    addSatelliteLayer(map);
-    addGranada(map);
-    addLocalLayers(map);
-    renderLocalMap();
-    map.once('idle',()=>renderLocalMap());
+    try{addSatelliteLayer(map)}catch(e){console.warn('SISMIA satélite',e)}
+    try{addGranada(map)}catch(e){console.warn('SISMIA capa Granada',e)}
+    try{addLocalLayers(map)}catch(e){console.warn('SISMIA capas locales',e)}
+    try{renderLocalMap()}catch(e){console.warn('SISMIA render mapa local',e)}
+    map.once('idle',()=>{try{renderLocalMap()}catch(_){}});
   });
   map.on('error',e=>{const msg=e?.error?.message||e?.message||'';if(msg&&!/tile/i.test(msg))console.warn('SISMIA map',msg)});
   return map
 }
 function ensureLocalMap(){if(localMapObj)return localMapObj;localMapObj=makeLocalMap('localMap',false);return localMapObj}
 function ensureFullLocalMap(){if(fullLocalMapObj)return fullLocalMapObj;fullLocalMapObj=makeLocalMap('fullLocalMap',true);return fullLocalMapObj}
-function ensureWorldMap(){if(worldMapObj)return worldMapObj;if(!window.maplibregl){if($('worldMap'))$('worldMap').innerHTML='<div class="mapError">No se pudo cargar el mapa mundial.</div>';return null}worldMapObj=new maplibregl.Map({container:'worldMap',style:'https://tiles.openfreemap.org/styles/dark',center:[8,25],zoom:1.2,attributionControl:true});worldMapObj.addControl(new maplibregl.NavigationControl({showCompass:false}),'bottom-right');worldMapObj.addControl(satelliteControl(),'bottom-right');worldMapObj.on('load',()=>{try{tuneLocalBaseMap(worldMapObj)}catch(_){}addSatelliteLayer(worldMapObj);addGranada(worldMapObj);addWorldLayers(worldMapObj);renderWorldMap();worldMapObj.once('idle',()=>renderWorldMap())});return worldMapObj}
+function ensureWorldMap(){
+  if(worldMapObj)return worldMapObj;
+  if(!$('worldMap'))return null;
+  if(!window.maplibregl){$('worldMap').innerHTML='<div class="mapError">No se pudo cargar el mapa mundial. Comprueba Internet y recarga.</div>';return null}
+  worldMapObj=new maplibregl.Map({container:'worldMap',style:'https://tiles.openfreemap.org/styles/dark',center:[8,25],zoom:1.2,attributionControl:true});
+  worldMapObj.addControl(new maplibregl.NavigationControl({showCompass:false}),'bottom-right');
+  worldMapObj.addControl(satelliteControl(),'bottom-right');
+  worldMapObj.on('error',e=>{const msg=e?.error?.message||e?.message||'';if(msg&&!/tile/i.test(msg))console.warn('SISMIA world map',msg)});
+  worldMapObj.on('load',()=>{
+    try{tuneLocalBaseMap(worldMapObj)}catch(_){}
+    try{addSatelliteLayer(worldMapObj)}catch(e){console.warn('SISMIA satélite mundo',e)}
+    try{addGranada(worldMapObj)}catch(e){console.warn('SISMIA capa Granada mundo',e)}
+    try{addWorldLayers(worldMapObj)}catch(e){console.warn('SISMIA capas mundo',e)}
+    try{renderWorldMap()}catch(e){console.warn('SISMIA render mapa mundo',e)}
+    worldMapObj.once('idle',()=>{try{renderWorldMap()}catch(_){}})
+  });
+  return worldMapObj
+}
 
 function latestMarkerElement(kind,e){const el=document.createElement('button'),place=kind==='world'?(e.place||'Actividad mundial'):nearestTown(e.lat,e.lon).name;el.type='button';el.className='latest-seismo-marker '+(kind==='world'?'world':'local');el.setAttribute('aria-label',`Último seísmo ${kind==='world'?'mundial':'de Granada'}: magnitud ${e.mag.toFixed(1)} a las ${markerClock(e.time)}`);el.innerHTML=`<span class="latest-pin"></span><span class="latest-card"><em>ÚLTIMO</em><strong>M${e.mag.toFixed(1)} <i>${markerClock(e.time)}</i></strong><small>${safeMapText(place)}</small></span>`;el.onclick=ev=>{ev.stopPropagation();kind==='world'?selectWorld(e.id):showLocalEvent(e,mapForMarker(el))};return el}
 function mapForMarker(el){return [localMapObj,fullLocalMapObj,worldMapObj].find(m=>m&&m.getContainer()?.contains(el))||localMapObj}

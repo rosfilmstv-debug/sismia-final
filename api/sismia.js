@@ -14,7 +14,35 @@ async function currentLocal(hours=720,minmag=1){const start=new Date(Date.now()-
 async function currentWorld(){const r=await fetchJSON('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson','USGS');if(!r.ok)return{...r,source:'USGS',events:[]};return{ok:true,source:'USGS',latencyMs:r.latencyMs,upstreamUpdated:Number(r.data?.metadata?.generated)||null,count:r.data?.metadata?.count??(r.data?.features||[]).length,events:parseWorld(r.data)}}
 async function earthquakes(req,res){const fetchedAt=Date.now(),scope=String(req.query?.scope||'sync');if(scope==='local'){const local=await currentLocal();return out(res,local.ok?200:502,{fetchedAt,...local})}if(scope==='world'){const world=await currentWorld();return out(res,world.ok?200:502,{fetchedAt,...world})}const[local,world]=await Promise.all([currentLocal(),currentWorld()]);return out(res,local.ok||world.ok?200:502,{ok:local.ok||world.ok,fetchedAt,local,world})}
 async function history(req,res){const start=new Date(Date.now()-365*864e5).toISOString();try{const lq=new URLSearchParams({format:'json',starttime:start,minlatitude:'36.45',maxlatitude:'37.85',minlongitude:'-4.55',maxlongitude:'-2.75',minmagnitude:'1.5',limit:'10000',orderby:'time-asc'}),wq=new URLSearchParams({format:'geojson',starttime:start,minmagnitude:'7',orderby:'time-asc',limit:'2000'}),[l,w]=await Promise.all([fetchJSON('https://www.seismicportal.eu/fdsnws/event/1/query?'+lq,'EMSC',25000),fetchJSON('https://earthquake.usgs.gov/fdsnws/event/1/query?'+wq,'USGS',25000)]);if(!l.ok||!w.ok)throw new Error(l.error||w.error||'Histórico no disponible');return out(res,200,{ok:true,fetchedAt:Date.now(),local:parseLocal(l.data),world:parseWorld(w.data)})}catch(error){return out(res,502,{ok:false,error:String(error?.message||error),fetchedAt:Date.now(),local:[],world:[]})}}
-function monitorScore(es){const now=Date.now(),e6=es.filter(e=>now-e.time<=6*3600e3),e12=es.filter(e=>now-e.time<=12*3600e3),prev=e12.filter(e=>now-e.time>6*3600e3),max=es.length?Math.max(...es.map(e=>e.mag)):0,depths=es.map(e=>e.depth).filter(Number.isFinite),shallow=depths.length?depths.filter(d=>d<=10).length/depths.length:0,acc=prev.length?e6.length/prev.length:e6.length?2:1;return Math.round(clamp((clamp(e6.length*2.2,0,30)+clamp(Math.max(0,max-2)*10,0,20)+clamp((acc-1)*10+5,0,15)+10+clamp(shallow*10,0,10))*(100/85),0,100))}
+const MC=1.5;
+const rad=x=>x*Math.PI/180;
+function hav(a,b,c,d){const R=6371,p=rad(c-a),q=rad(d-b),x=Math.sin(p/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(q/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function percentile(a,p){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),i=(s.length-1)*p,l=Math.floor(i),h=Math.ceil(i);return l===h?s[l]:s[l]+(s[h]-s[l])*(i-l)}
+function weightedCenter(es,now){if(!es.length)return{lat:37.1773,lon:-3.5986};let sw=0,la=0,lo=0;for(const e of es){const ageH=Math.max(.05,(now-e.time)/36e5),w=(1+Math.max(0,e.mag-MC))*(1/(1+ageH/6));sw+=w;la+=e.lat*w;lo+=e.lon*w}return{lat:la/sw,lon:lo/sw}}
+/* Mismos componentes y mismos topes que calcModel() en app-2.js, para que
+   "Último score servidor" sea comparable con el score que ve el usuario.
+   Única diferencia: aquí no hay feed mundial, así que falta el término remoto
+   (0–10). Antes se usaba un valor fijo de 10 para la concentración espacial y
+   un reescalado *(100/85) que inflaba el resultado ~18 %. */
+function monitorScore(es){
+  const now=Date.now(),
+    e6=es.filter(e=>now-e.time<=6*3600e3),
+    e24=es.filter(e=>now-e.time<=24*3600e3),
+    prev=es.filter(e=>now-e.time>6*3600e3&&now-e.time<=12*3600e3),
+    max=es.length?Math.max(...es.map(e=>e.mag)):0,
+    depths=es.map(e=>e.depth).filter(Number.isFinite),
+    shallow=depths.length?depths.filter(d=>d<=10).length/depths.length:0,
+    acc=prev.length?e6.length/prev.length:e6.length?2:1,
+    base=e24.length?e24:es,
+    center=weightedCenter(base,now),
+    radius=clamp(percentile(base.map(e=>hav(center.lat,center.lon,e.lat,e.lon)),.8)||5,3,25);
+  const rateScore=clamp(e6.length*2.2,0,30),
+    magScore=clamp(Math.max(0,max-2)*10,0,20),
+    accelScore=clamp((acc-1)*10+5,0,15),
+    clusterScore=clamp(15*(1-radius/25),0,15),
+    depthScore=clamp(shallow*10,0,10);
+  return Math.round(clamp(rateScore+magScore+accelScore+clusterScore+depthScore,0,100))
+}
 async function runMonitor(){const result=await currentLocal(72,1.5);if(!result.ok)throw new Error(result.error||'EMSC no disponible');const events=result.events.sort((a,b)=>b.time-a.time),latest=events[0]||null,latestM3=events.find(e=>e.mag>=3)||null,currentScore=monitorScore(events),prev=STATE.monitor||{},newM3=latestM3&&String(latestM3.id)!==String(prev.latestM3Id||''),crossed=currentScore>=80&&(prev.lastScore??0)<80;STATE.monitor={ok:true,lastRun:Date.now(),lastScore:currentScore,localCount:events.length,latestId:latest?.id||null,latestMag:latest?.mag||null,latestM3Id:latestM3?.id||prev.latestM3Id||null,sent:0,reason:newM3?'detección':crossed?'anomalía':null,persistent:false,pushConfigured:false};return STATE.monitor}
 async function stateRoute(req,res,action){if(action==='felt'){if(req.method==='POST'){const b=await read(req),level=clamp(Number(b.level)||0,0,3),at=Number(b.at)||Date.now();STATE.felt.push({id:randomUUID(),level,at,eventId:b.eventId?String(b.eventId).slice(0,120):null,eventMag:Number.isFinite(Number(b.eventMag))?Number(b.eventMag):null,region:'Granada'});STATE.felt=STATE.felt.filter(x=>Date.now()-x.at<48*3600e3).slice(-1000);return out(res,200,{ok:true,persistent:false})}const recent=STATE.felt.filter(x=>x.at>=Date.now()-24*3600e3),counts=[0,0,0,0];for(const r of recent)counts[clamp(Number(r.level)||0,0,3)]++;return out(res,200,{ok:true,total:recent.length,counts,persistent:false})}
 if(action==='sensor'){if(req.method==='POST'){const b=await read(req),at=Number(b.at)||Date.now();STATE.sensors.push({id:randomUUID(),at,rms:Number(b.rms)||0,peak:Number(b.peak)||0,gyro:Number(b.gyro)||0,device:hash(b.deviceId).slice(0,18),region:'Granada'});STATE.sensors=STATE.sensors.filter(x=>Date.now()-x.at<48*3600e3).slice(-3000);return out(res,200,{ok:true,persistent:false})}const now=Date.now(),d10=new Set(),d60=new Set();for(const d of STATE.sensors){const age=now-d.at;if(age<=3600e3)d60.add(d.device);if(age<=10*60e3)d10.add(d.device)}const n10=d10.size,n60=d60.size;return out(res,200,{ok:true,n10,n60,confidence:Math.min(100,Math.round(n10*24+n60*3)),persistent:false})}

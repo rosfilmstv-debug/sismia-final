@@ -1,6 +1,12 @@
 
+/* AVISO: este archivo NO está enlazado desde index.html y su HTML/CSS
+   (secciones #seismoCanvas, #faultMap, #groundMap, #basinMap, #regionalMap,
+   .seismoState, .geoInfoPanel, .sismiaEdgeAlarm) no existe en el proyecto
+   actual. Se conserva como referencia y se ha blindado el acceso al DOM para
+   que, si algún día se carga, degrade en silencio en vez de lanzar errores. */
 (()=>{
 const $=id=>document.getElementById(id);
+const setTxt=(id,v)=>{const el=$(id);if(el)el.textContent=v};
 let active=false, alarmOn=true, peak=0, started=0, samples=[], raf=0, audioCtx=null;
 const MAX=240, THRESH=.18;
 function mag(e){
@@ -42,16 +48,17 @@ function onMotion(e){
  if(!active)return;
  const v=mag(e);samples.push(v);if(samples.length>MAX)samples.shift();peak=Math.max(peak,v);
  const lvl=Math.min(100,Math.round(v/.5*100));
- $('seismoLevel').textContent=lvl+'%';$('seismoPeak').textContent=peak.toFixed(3)+' m/s²';$('seismoDuration').textContent=((performance.now()-started)/1000).toFixed(1)+' s';
- let label=v>THRESH?'MOVIMIENTO FUERTE':v>.06?'VIBRACIÓN':'NORMAL';$('seismoLabel').textContent=label;
- const st=$('seismoState');st.classList.toggle('alert',v>THRESH);st.classList.toggle('live',v<=THRESH);st.querySelector('b').textContent=label;
+ setTxt('seismoLevel',lvl+'%');setTxt('seismoPeak',peak.toFixed(3)+' m/s²');setTxt('seismoDuration',((performance.now()-started)/1000).toFixed(1)+' s');
+ let label=v>THRESH?'MOVIMIENTO FUERTE':v>.06?'VIBRACIÓN':'NORMAL';setTxt('seismoLabel',label);
+ const st=$('seismoState');if(st){st.classList.toggle('alert',v>THRESH);st.classList.toggle('live',v<=THRESH);const b=st.querySelector('b');if(b)b.textContent=label}
  if(v>THRESH&&Date.now()-lastAlarm>1800){lastAlarm=Date.now();beep()}
 }
 async function start(){
- if(active){active=false;window.removeEventListener('devicemotion',onMotion);$('seismoStart').textContent='INICIAR MEDICIÓN';$('seismoState').className='seismoState';$('seismoState').querySelector('b').textContent='EN ESPERA';return}
+ const setState=(cls,label)=>{const st=$('seismoState');if(!st)return;st.className=cls;const b=st.querySelector('b');if(b)b.textContent=label};
+ if(active){active=false;window.removeEventListener('devicemotion',onMotion);setTxt('seismoStart','INICIAR MEDICIÓN');setState('seismoState','EN ESPERA');return}
  try{if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')throw Error('Permiso no concedido')}}
- catch(e){alert('Para usar el sismógrafo debes permitir el acceso a Movimiento y orientación.');return}
- active=true;peak=0;started=performance.now();samples=[];window.addEventListener('devicemotion',onMotion,{passive:true});$('seismoStart').textContent='DETENER';$('seismoState').className='seismoState live';$('seismoState').querySelector('b').textContent='MIDIENDO';
+ catch(e){console.warn('SISMIA sismógrafo: permiso de movimiento no concedido',e);return}
+ active=true;peak=0;started=performance.now();samples=[];window.addEventListener('devicemotion',onMotion,{passive:true});setTxt('seismoStart','DETENER');setState('seismoState live','MIDIENDO');
 }
 $('seismoStart')?.addEventListener('click',start);$('seismoAlarm')?.addEventListener('click',e=>{alarmOn=!alarmOn;e.currentTarget.textContent='ALARMA: '+(alarmOn?'ON':'OFF')});paint();
 
